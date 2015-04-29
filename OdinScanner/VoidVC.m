@@ -9,7 +9,6 @@
 #import "VoidVC.h"
 #import "ReceiptVC.h"
 #import "CardProcessor.h"
-#import "PSTAlertController.h"
 
 @interface VoidVC ()
 
@@ -106,10 +105,7 @@
 	OdinTransaction* tran = [transactArray objectAtIndex:0];
 	//compare last 4 digits. give error if card mismatch
 	if (![tran.cc_digit isEqual:[ccProcess getCardLast4Digits]]) {
-		PSTAlertController* alert = [PSTAlertController alertWithTitle:@"Mismatch Card" message:@"This transaction wasn't purchased with this card. Please try a different card"];
-		[alert addCancelActionWithHandler:nil];
-		[alert showWithSender:nil controller:self animated:YES completion:nil];
-		
+		[ErrorAlert simpleAlertTitle:@"Mismatched Card" message:@"This transaction wasn't purchased with this card. Please try a different card"];
 		return;
 	}
 	
@@ -195,7 +191,7 @@
 {
 	OdinTransaction* transaction = [transactArray objectAtIndex:0];
 	
-	MBProgressHUD* HUD = [HUDsingleton theHUD].HUD;
+	MBProgressHUD* HUD = [HUDsingleton sharedHUD].HUD;
 	[[UIApplication sharedApplication].keyWindow addSubview:HUD];
 	[HUD show:YES];
 	
@@ -224,9 +220,7 @@
 	} else
 	{
 		NSLog(@"Bad, Your response is %@", [ccProcess responseText]);
-		PSTAlertController* alert = [PSTAlertController alertWithTitle:@"Card Declined" message:[ccProcess responseText]];
-		[alert addCancelActionWithHandler:nil];
-		[alert showWithSender:nil controller:self animated:YES completion:nil];
+		[ErrorAlert simpleAlertTitle:@"Card Declined" message:[ccProcess responseText]];
 	}
 }
 
@@ -238,7 +232,7 @@
 	NSLog(@"Do Void");
 	OdinTransaction* transaction = [transactArray objectAtIndex:0];
 	
-	MBProgressHUD* HUD = [HUDsingleton theHUD].HUD;
+	MBProgressHUD* HUD = [HUDsingleton sharedHUD].HUD;
 	[[UIApplication sharedApplication].keyWindow addSubview:HUD];
 	[HUD show:YES];
 	
@@ -266,9 +260,7 @@
 	} else
 	{
 		NSLog(@"Bad, Your response is %@", [ccProcess responseText]);
-		PSTAlertController* alert = [PSTAlertController alertWithTitle:@"Card Declined" message:[ccProcess responseText]];
-		[alert addCancelActionWithHandler:nil];
-		[alert showWithSender:nil controller:self animated:YES completion:nil];
+		[ErrorAlert simpleAlertTitle:@"Card Declined" message:[ccProcess responseText]];
 	}
 }
 

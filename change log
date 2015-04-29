@@ -1,0 +1,76 @@
+
+TODO:
+Add UIAlertController for iOS8
+use MKS email for receipt
+Add a button to select MKS email on receipt VC
+Code cleanup for credit card transfer data to Receipt (switched Singleton to CoreData)
+May need a way to accept different credit card terminal (currently is code builtin)
+Use my custom ALAlert, which is compatible to iOS 6+
+
+2.7.0.3
+version display correctly
+online mode button show correctly
+student re-sync connection show error message from PHP response
+revert all alerts back to UIViewAlert
+
+2.7.0.2
+More code clean up and reorganized
+
+2.7.0.1
+Code clean up and reorganized
+
+2.6.2
+Add DataModel version 14
+-add credit card transaction data
+Compatable to iOS 8.0
+Switch ASFHTTP (outdated) to AFNetworking
+Add feature to ask UID during resync error when uid is empty
+Add a Verify button on Upload Transaction alert
+Disable Verify Uploaded Transaction after Upload Transaction
+Add Credit Card filter in Pending/Uploaded Transaction when card is swipe
+Convert OCUnit to XCTest
+Add version label in List screen
+Fix when reference returns empty string causes app crash
+Verify Uploaded Transaction no longer run after Upload Transaction
+Grey out disabled field on select item in picker in FirstVC
+Redesign UI to work auto layout
+Add responsetext to OdinTransaction
+
+
+2.6.1
+Disable file writing log because high Upload Transation crashes app
+
+2.6.0
+CardProcessor
+-add getCardLast4Digit
+-add getCardName
+-add getCardFirstName
+-add getcardLastName
+-add isValidCardExpDate
+
+
+Receipt Handling
+-send to email
+-AirPrint
+-Cancel
+Send successed transaction to uploaded transaction list
+Hash Data
+
+2.5.9
+FirstViewController -> isTransactionSuccessful: fix an issue scanned items may not committed
+Add DataModel version 12
+-Added deptcode (String) in OdinEvent
+Defined deptcode in OdinEvent as NSString
+Changed deptcode in OdinTransaction from NSNumber to NSString
+Set OdinEvent deptcode value during sync
+Added a feature to resume reference number during resync
+-Check Inventory Item and Transaction array are empty
+glcode, operator, and deptcode are register from device rather than from webservice
+-Changed OdinEvent operator is set to device operator instead of webservice friendly
+-glcode from device is write into database instead of webservice retrieving glcode during resync
+Updated DTDevice 1.88 and included new firmwares
+
+Todo Before release
+ManagementViewController -> reloadSyncedArray: change verifiy day to -60
+AuthenticationStation -> reset: get reference number from database when Odin is freshly install
+match school, serial, operator and get lastest qdate, time, reference

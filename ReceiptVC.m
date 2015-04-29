@@ -226,7 +226,7 @@
 	
 	NSString *post = [NSString stringWithFormat:@"%@%@", argument, tranData];
 	if (![WebService postEmailReceipt:post]) {
-		[PSTAlertController failToPostToEmailService:self];
+		[ErrorAlert failToPostToEmailService];
 	}
 
 	[UIApplication sharedApplication].networkActivityIndicatorVisible = NO;

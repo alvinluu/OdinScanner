@@ -1,11 +1,40 @@
 
 TODO:
 Add UIAlertController for iOS8
-use MKS email for receipt
-Add a button to select MKS email on receipt VC
 Code cleanup for credit card transfer data to Receipt (switched Singleton to CoreData)
 May need a way to accept different credit card terminal (currently is code builtin)
 Use my custom ALAlert, which is compatible to iOS 6+
+
+2.7.8
+
+
+2.7.7
+compatible to new Odin app
+    ability to generate IOS key
+    correctly read start and stop id
+
+
+2.7.6
+this update from 2.7.4
+fixed some issue with HUD hang (will need to improve it. it still hang sometimes)
+accept cardsmith (haven't test)
+    it will retrieve export id based on Ken's note and use export id to retrieve id
+    EXPORTID MUST BE TURN ON
+receipt screen
+    scan card will auto insert s_email to email address field
+        multiply emails separated by , works
+ran process in background caused barcode to freeze
+added X to most textfield
+
+
+
+2.7.5
+computer corrupted had to use 2.7.4
+fixed a bug that caused manual qty, id, $ entre crash in List and Barcode screen
+
+
+2.7.4
+fixed a bug where update MKS portable doesn't update ipod during resync
 
 2.7.0.3
 version display correctly

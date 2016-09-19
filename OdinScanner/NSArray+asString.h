@@ -11,5 +11,4 @@
 @interface NSArray (asString)
 -(NSString*) JSON;
 -(NSString*) prepForWebservice;
-
 @end

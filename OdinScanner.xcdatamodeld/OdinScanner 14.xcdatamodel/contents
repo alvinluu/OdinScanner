@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model userDefinedModelVersionIdentifier="14" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6751" systemVersion="13F34" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+<model userDefinedModelVersionIdentifier="14" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6751" systemVersion="13F1096" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="LastUpdates" representedClassName="LastUpdates" syncable="YES">
         <attribute name="lastAuth" optional="YES" attributeType="Date" syncable="YES"/>
         <attribute name="lastItemUpdate" optional="YES" attributeType="Date" syncable="YES"/>
@@ -24,6 +24,7 @@
         <attribute name="lock_cfg" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="operator" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="plu" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="process_on_sync" optional="YES" attributeType="Boolean" syncable="YES"/>
         <attribute name="qty" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="school" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="stock_name" optional="YES" attributeType="String" syncable="YES"/>
@@ -62,19 +63,20 @@
         <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
         <attribute name="cc_approval" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="cc_digit" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
-        <attribute name="cc_first" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="cc_last" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="cc_responsetext" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="cc_timeStamp" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="cc_tranid" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="dept_code" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="first" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="glcode" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="id_number" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="item" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="location" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="operator" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="payment" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="plu" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="process_on_sync" optional="YES" attributeType="Integer 16" defaultValueString="0.0" syncable="YES"/>
         <attribute name="qdate" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="qty" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
         <attribute name="reference" optional="YES" attributeType="String" syncable="YES"/>
@@ -83,11 +85,12 @@
         <attribute name="tax_amount" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
         <attribute name="time" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="timeStamp" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="type" optional="YES" attributeType="String" syncable="YES"/>
     </entity>
     <elements>
         <element name="LastUpdates" positionX="160" positionY="192" width="128" height="105"/>
-        <element name="OdinEvent" positionX="160" positionY="192" width="128" height="358"/>
+        <element name="OdinEvent" positionX="160" positionY="192" width="128" height="373"/>
         <element name="OdinStudent" positionX="160" positionY="192" width="128" height="435"/>
-        <element name="OdinTransaction" positionX="160" positionY="192" width="128" height="403"/>
+        <element name="OdinTransaction" positionX="160" positionY="192" width="128" height="433"/>
     </elements>
 </model>

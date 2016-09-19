@@ -7,14 +7,9 @@
 //
 
 #import "NSArray+asString.h"
+#import "NSString+hackXML.h"
 
 @implementation NSArray (asString)
-#define NAME @"name"
-#define PLU @"plu"
-#define QUANTITY @"quantity"
-#define RETAIL @"retails"
-#define DEPARTMENT @"departments"
-#define TOTAL @"total"
 
 /*
  convert OdinTransaction to JSON
@@ -33,36 +28,114 @@
 }
 
 -(NSString*) prepForWebservice {
-	NSMutableArray* array = [[NSMutableArray alloc]init];
 	OdinTransaction* tran = [self objectAtIndex:0];
-	NSTimeInterval date = [[NSDate date] timeIntervalSince1970];
 	
-	[array addObjectsFromArray:@[[self addData:tran.cc_digit Tag:@"cc"],
-								 [self addData:tran.school Tag:@"school"],
-								 //[self addData:[NSString stringWithFormat:@"%@ %@",tran.qdate, tran.time] Tag:@"orderdate"],
-								 [self getDataWithTag:NAME],
-								 [self getDataWithTag:PLU],
-								 [self getDataWithTag:QUANTITY],
-								 [self getDataWithTag:RETAIL],
-								 [self getDataWithTag:DEPARTMENT],
-								 [self getDataWithTag:TOTAL],
-								 [self addData:tran.reference Tag:@"reference"],
-								 [self addData:tran.qdate Tag:@"qdate"],
-								 [self addData:tran.time Tag:@"time"],
-								 [self addData:tran.cc_first Tag:@"first"],
-								 [self addData:tran.cc_last Tag:@"last"],
-								 [self addData:@"Sale" Tag:@"type"],
-								 [self addData:tran.cc_responsetext Tag:@"responsetext"],
-								 [self addData:tran.cc_tranid Tag:@"transactionid"],
-								 [self addData:tran.cc_approval Tag:@"approval"],
-								 [self addData:tran.cc_timeStamp Tag:@"timeStamp"],
-								 [self addData:[NSString stringWithFormat:@"%f",date] Tag:@"orderDate"],
-								 [self addData:[[[UIDevice currentDevice] identifierForVendor] UUIDString] Tag:@"deviceID"],
-								 [self addData:[[UIDevice currentDevice] systemVersion] Tag:@"iosVersion"]
-								 ]];
+	if (tran.cc_digit) {
+#ifdef DEBUG
+		NSLog(@"process CC transaction");
+#endif
+		return [self processCreditCard];
+	} else if (tran.id_number) {
+#ifdef DEBUG
+		NSLog(@"process Debit transaction");
+#endif
+		return [self processDebitTransaction];
+	}
+#ifdef DEBUG
+	NSLog(@"Unknown transaction type");
+#endif
+	return @"Unknow transaction trype";
+}
+
+-(NSString*) processDebitTransaction {
 	
+	if (self.count > 0) {
+		OdinTransaction* tran = [self objectAtIndex:0];
+		NSTimeInterval date = [[NSDate localDate] timeIntervalSince1970];
+		NSString* source = (tran.process_on_sync.intValue == 1) ? @"2" : @"1";
+		NSArray* array = [NSArray arrayWithObjects:
+						  [NSString addData:tran.id_number Tag:@"id_number"],
+						  [NSString addData:tran.school Tag:@"school"],
+						  //[NSString addData:[NSString stringWithFormat:@"%@ %@",tran.qdate, tran.time] Tag:@"orderdate"],
+						  [self getDataWithTag:NAME],
+						  [self getDataWithTag:PLU],
+						  [self getDataWithTag:QUANTITY],
+						  [self getDataWithTag:RETAIL],
+						  [self getDataWithTag:DEPARTMENT],
+						  [self getDataWithTag:GLCODE],
+						  [self getDataWithTag:TOTAL],
+						  [NSString addData:tran.reference Tag:@"reference"],
+						  [NSString addData:tran.qdate Tag:@"qdate"],
+						  [NSString addData:tran.time Tag:@"time"],
+						  [NSString addData:tran.first Tag:@"first"],
+						  [NSString addData:tran.last Tag:@"last"],
+						  [NSString addData:tran.location Tag:@"location"],
+						  [NSString addData:source Tag:@"source"],
+						  [NSString addData:tran.payment Tag:@"payment"],
+						  [NSString addData:tran.tax_amount Tag:@"tax_amount"],
+						  [NSString addData:tran.operator Tag:@"operator"],
+						  [NSString addData:tran.process_on_sync Tag:@"process_on_sync"],
+						  [NSString addData:tran.type Tag:@"type"],
+						  [NSString addData:[NSString stringWithFormat:@"%f",date] Tag:@"orderDate"],
+						  [NSString addData:[[[UIDevice currentDevice] identifierForVendor] UUIDString] Tag:@"deviceID"],
+						  [NSString addData:[[UIDevice currentDevice] systemVersion] Tag:@"iosVersion"],
+						  nil];
+		
+		
+		return [array componentsJoinedByString:@""];
+	}
+#ifdef DEBUG
+	NSLog(@"Transaction Array is empty");
+#endif
+	return @"Transaction Array is empty";
 	
-	return [array componentsJoinedByString:@""];
+}
+-(NSString*) processCreditCard {
+	if (self.count > 0) {
+		OdinTransaction* tran = [self objectAtIndex:0];
+		NSTimeInterval date = [[NSDate localDate] timeIntervalSince1970];
+		NSString* source = (tran.process_on_sync.intValue == 1) ? @"2" : @"1";
+		
+		NSArray* array = [NSArray arrayWithObjects:
+						  [NSString addData:tran.cc_digit Tag:@"cc"],
+						  [NSString addData:tran.school Tag:@"school"],
+						  //[NSString addData:[NSString stringWithFormat:@"%@ %@",tran.qdate, tran.time] Tag:@"orderdate"],
+						  [self getDataWithTag:NAME],
+						  [self getDataWithTag:PLU],
+						  [self getDataWithTag:QUANTITY],
+						  [self getDataWithTag:RETAIL],
+						  [self getDataWithTag:DEPARTMENT],
+						  [self getDataWithTag:GLCODE],
+						  [self getDataWithTag:TOTAL],
+						  [NSString addData:tran.reference Tag:@"reference"],
+						  [NSString addData:tran.qdate Tag:@"qdate"],
+						  [NSString addData:tran.time Tag:@"time"],
+						  [NSString addData:tran.first Tag:@"first"],
+						  [NSString addData:tran.last Tag:@"last"],
+						  [NSString addData:tran.location Tag:@"location"],
+						  [NSString addData:source Tag:@"source"],
+						  [NSString addData:tran.payment Tag:@"payment"],
+						  [NSString addData:tran.tax_amount Tag:@"tax_amount"],
+						  [NSString addData:tran.operator Tag:@"operator"],
+						  [NSString addData:tran.process_on_sync Tag:@"process_on_sync"],
+						  [NSString addData:tran.type Tag:@"type"],
+						  [NSString addData:tran.cc_responsetext Tag:@"responsetext"],
+						  [NSString addData:tran.cc_tranid Tag:@"transactionid"],
+						  [NSString addData:tran.cc_approval Tag:@"approval"],
+						  [NSString addData:tran.cc_timeStamp Tag:@"timeStamp"],
+						  [NSString addData:[NSString stringWithFormat:@"%f",date] Tag:@"orderDate"],
+						  [NSString addData:[[[UIDevice currentDevice] identifierForVendor] UUIDString] Tag:@"deviceID"],
+						  [NSString addData:[[UIDevice currentDevice] systemVersion] Tag:@"iosVersion"],
+						  nil];
+		
+		
+		return [array componentsJoinedByString:@""];
+	} else {
+#ifdef DEBUG
+		NSLog(@"Transaction Array is empty");
+#endif
+	}
+	return @"";
 }
 
 -(NSString*) getDataWithTag:(NSString*)tag
@@ -79,34 +152,19 @@
 			[array addObject:[NSString stringWithFormat:@"\n\t%@",transaction.amount]];
 		} else if ([tag isEqual:DEPARTMENT]) {
 			[array addObject:[NSString stringWithFormat:@"\n\t%@",transaction.dept_code]];
+		} else if ([tag isEqual:GLCODE]) {
+			[array addObject:[NSString stringWithFormat:@"\n\t%@",transaction.glcode]];
 		} else if ([tag isEqual:TOTAL]) {
 			[array addObject:transaction.amount];
 		} else {
 			[array addObject:@"ERROR"];
 		}
 	}
-	return [self addData:array Tag:tag];
+	return [NSString addData:array Tag:tag];
 }
 
-
--(NSString*) addData:(NSObject*)data Tag:(NSString*)tag
++(NSString*) getDataWithTag:(NSString*)tag
 {
-	if ([data isKindOfClass:[NSString class]]) {
-		return [NSString stringWithFormat:@"<%@>%@</%@>",tag,(NSString*)data,tag];
-	} else if ([data isKindOfClass:[NSNumber class]]) {
-		return [NSString stringWithFormat:@"<%@>%@</%@>",tag,[(NSNumber*)data stringValue],tag];
-	} else if ([data isKindOfClass:[NSDecimalNumber class]]) {
-		return [NSString stringWithFormat:@"<%@>%@</%@>",tag,[(NSDecimalNumber*)data stringValue],tag];
-	} else if ([data isKindOfClass:[NSArray class]]) {
-		NSArray* array = (NSArray*)data;
-		
-		if ([tag isEqual:TOTAL]) {
-			return [NSString stringWithFormat:@"<%@>%@</%@>",tag,[array valueForKeyPath:@"@sum.self"],tag];
-		}
-		return [NSString stringWithFormat:@"<%@>(%@\n)</%@>",tag,[array componentsJoinedByString:@","],tag];
-		
-	}else {
-		return [NSString stringWithFormat:@"<%@>%@</%@>",tag,@"ERROR",tag];
-	}
+	return [NSArray getDataWithTag:tag];
 }
 @end

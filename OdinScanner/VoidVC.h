@@ -7,15 +7,15 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "MBProgressHUD.h"
+//#import "MBProgressHUD.h"
 #import "OdinViewController.h"
 #import "DTDevices.h"
+#import "HUDsingleton.h"
 
 @interface VoidVC : OdinViewController <MBProgressHUDDelegate,
 UITableViewDelegate,
 UITableViewDataSource,
-UIActionSheetDelegate,
-DTDeviceDelegate>
+UIActionSheetDelegate>
 
 
 @property (nonatomic, strong) OdinTransaction *selectedItem;

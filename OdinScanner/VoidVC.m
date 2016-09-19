@@ -9,6 +9,7 @@
 #import "VoidVC.h"
 #import "ReceiptVC.h"
 #import "CardProcessor.h"
+#import "NSString+hackXML.h"
 
 @interface VoidVC ()
 
@@ -23,6 +24,29 @@
 @synthesize transactArray;
 @synthesize atableView, selectedItem, refundAmount;
 
+
+#pragma mark - Actions
+-(IBAction)voidAndRefund:(id)sender {
+	float refund = [refundAmount.text floatValue];
+	float total = [[self calculateTotalAmount] floatValue];
+	
+	
+	CardProcessor* ccProcess = [CardProcessor initialize:@"0"];
+    if (ccProcess == nil) {return;}
+	[ccProcess setTerminal];
+	
+	if (transactArray.count > 0) {
+		
+		
+		//do void/refund
+		(refund < total) ? [self doRefund:ccProcess] : [self doVoid:ccProcess];
+	} else {
+		[ErrorAlert simpleAlertTitle:@"No Transaction" message:@"No transaction to refund/void"];
+	}
+	
+}
+
+#pragma mark - View
 - (void)viewDidLoad {
     [super viewDidLoad];
 #ifdef DEBUG
@@ -31,7 +55,7 @@
 	// Get managedObjectContext from AppDelegate
 	if (moc == nil)
 	{
-		moc = [CoreDataHelper getMainMOC];
+		moc = [CoreDataService getMainMOC];
 	}
 	
 	self.atableView.delegate = self;
@@ -48,8 +72,8 @@
 
 -(void) viewWillAppear:(BOOL)animated
 {
-	[self readDataForTable];
 	[super viewWillAppear:animated];
+	[self readDataForTable];
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
@@ -62,13 +86,13 @@
 	NSLog(@"load CC card %@",selectedItem.cc_tranid);
 #endif
 	NSString* predicate = [NSString stringWithFormat:@"cc_tranid == %@",selectedItem.cc_tranid];
-	transactArray = [CoreDataHelper searchObjectsForEntity:@"OdinTransaction"
+	transactArray = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
 											 withPredicate:[NSPredicate predicateWithFormat:predicate]
 												andSortKey:@"timeStamp"
 										  andSortAscending:NO
 												andContext:moc];
 #ifdef DEBUG
-	NSLog(@"Loading data for table %i", [transactArray count]);
+	NSLog(@"Loading data for table %lu", (unsigned long)[transactArray count]);
 #endif
 	//  Force table refresh
 	if (transactArray.count) {
@@ -78,14 +102,15 @@
 #pragma mark - View Cycle
 -(void)viewDidAppear:(BOOL)animated
 {
-	[[DTDevices sharedDevice] addDelegate:self];
-	
 	[self loadTableAmount];
+	[self refreshLinea];
 }
 -(void)viewDidDisappear:(BOOL)animated
 {
-	
-	[[DTDevices sharedDevice] removeDelegate:self];
+}
+-(void)viewWillDisappear:(BOOL)animated
+{
+	[self disconnectLinea];
 }
 #pragma mark - Linea Delegate Calls
 -(void)magneticCardData:(NSString *)track1 track2:(NSString *)track2 track3:(NSString *)track3
@@ -100,18 +125,25 @@
 	
 	
 	CardProcessor* ccProcess = [CardProcessor initialize:magneticData];
+    
+    if (ccProcess == nil ) {return;}
 	[ccProcess setTerminal];
 	
-	OdinTransaction* tran = [transactArray objectAtIndex:0];
-	//compare last 4 digits. give error if card mismatch
-	if (![tran.cc_digit isEqual:[ccProcess getCardLast4Digits]]) {
-		[ErrorAlert simpleAlertTitle:@"Mismatched Card" message:@"This transaction wasn't purchased with this card. Please try a different card"];
-		return;
+	if (transactArray.count > 0) {
+		
+		OdinTransaction* tran = [transactArray objectAtIndex:0];
+		//compare last 4 digits. give error if card mismatch
+		if (![tran.cc_digit isEqual:[ccProcess getCardLast4Digits]]) {
+			[ErrorAlert simpleAlertTitle:@"Mismatched Card" message:@"This transaction wasn't purchased with this card. Please try a different card"];
+			return;
+		}
+		
+		//do void/refund
+		(refund < total) ? [self doRefund:ccProcess] : [self doVoid:ccProcess];
+	} else {
+		[ErrorAlert simpleAlertTitle:@"No Transaction" message:@"No transaction to refund/void"];
 	}
 	
-	
-	//do void/refund
-	(refund < total) ? [self doRefund:ccProcess] : [self doVoid:ccProcess];
 }
 #pragma mark - Table view data source
 
@@ -191,7 +223,7 @@
 {
 	OdinTransaction* transaction = [transactArray objectAtIndex:0];
 	
-	MBProgressHUD* HUD = [HUDsingleton sharedHUD].HUD;
+	MBProgressHUD* HUD = [HUDsingleton sharedHUD];
 	[[UIApplication sharedApplication].keyWindow addSubview:HUD];
 	[HUD show:YES];
 	
@@ -202,20 +234,25 @@
 	NSLog(@"Do Refund with Amount %@ with Total %@ on Tranid %@", refundAmount.text, [self calculateTotalAmount], transaction.cc_tranid);
 	if ([ccProcess responseApproved]) {
 		NSLog(@"Good, Your response is %@",[ccProcess responseText]);
-		
+		NSMutableArray* transArray = [[NSMutableArray alloc] init];
 		//Load transaction(s) to CoreDate
 		NSArray* listOfSelectedRows = atableView.indexPathsForSelectedRows;
 		for (NSIndexPath *path in listOfSelectedRows) {
 			OdinTransaction* currentCell = [transactArray objectAtIndex:path.row];
-			currentCell.id_number = [NSString stringWithFormat:@"%@ Voided",currentCell.id_number];
+			currentCell.id_number = [NSString stringWithFormat:@"%@ Refunded",currentCell.id_number];
+			currentCell.type = @"Refund";
 			//convert to CardTransaction
 			//CardTransaction* tran = [currentCell saveToCardTransactionWithMOC:moc];
 			
 			//tran.amount = [tran.amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithString:@"-1.0"]];
-			[CoreDataHelper saveObjectsInContext:moc];
+			[transArray addObject:currentCell];
+			[self uploadTransaction:currentCell CardProcessor:ccProcess];
+			[CoreDataService saveObjectsInContext:moc];
 		}
 		
 		ReceiptVC* rvc = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiptVC"];
+		rvc.transArray = transArray;
+		rvc.type = @"Refund";
 		[self presentViewController:rvc animated:YES completion:nil];
 	} else
 	{
@@ -226,13 +263,15 @@
 
 	//TODO:How to check refund success
 
-//Void Transaction on full amount
+/*
+ *Void Transaction on full amount
+ *If we cannot void, it is possible it is already charged, therefore, try refund.
+ */
 -(void) doVoid:(CardProcessor*)ccProcess
 {
-	NSLog(@"Do Void");
 	OdinTransaction* transaction = [transactArray objectAtIndex:0];
 	
-	MBProgressHUD* HUD = [HUDsingleton sharedHUD].HUD;
+	MBProgressHUD* HUD = [HUDsingleton sharedHUD];
 	[[UIApplication sharedApplication].keyWindow addSubview:HUD];
 	[HUD show:YES];
 	
@@ -243,25 +282,73 @@
 	if ([ccProcess responseApproved]) {
 		NSLog(@"Good, Your response is %@",[ccProcess responseText]);
 		
+		NSMutableArray* transArray = [[NSMutableArray alloc] init];
 		//Load transaction(s) to CoreDate
 		NSArray* listOfSelectedRows = atableView.indexPathsForSelectedRows;
 		for (NSIndexPath *path in listOfSelectedRows) {
 			OdinTransaction* currentCell = [transactArray objectAtIndex:path.row];
+			currentCell.id_number = [NSString stringWithFormat:@"%@ Voided",currentCell.id_number];
+			currentCell.type = @"Void";
 			//CardTransaction* tran = [currentCell saveToCardTransactionWithMOC:moc];
 			//tran.amount = [tran.amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithString:@"-1.0"]];
 #ifdef DEBUG
 			//NSLog(@"you new tran amount is %@",[tran.amount stringValue]);
 #endif
-			[CoreDataHelper saveObjectsInContext:moc];
+			[transArray addObject:currentCell];
+			[self uploadTransaction:currentCell CardProcessor:ccProcess];
+			[CoreDataService saveObjectsInContext:moc];
 		}
 		
 		ReceiptVC* rvc = [self.storyboard instantiateViewControllerWithIdentifier:@"ReceiptVC"];
+		rvc.transArray = transArray;
+		rvc.type = @"Void";
 		[self presentViewController:rvc animated:YES completion:nil];
 	} else
 	{
-		NSLog(@"Bad, Your response is %@", [ccProcess responseText]);
-		[ErrorAlert simpleAlertTitle:@"Card Declined" message:[ccProcess responseText]];
+//		NSLog(@"Bad, Your response is %@", [ccProcess responseText]);
+//		[ErrorAlert simpleAlertTitle:@"Card Declined" message:[ccProcess responseText]];
+		[self doRefund:ccProcess];
 	}
+}
+-(void) uploadTransaction:(OdinTransaction*)currentCell CardProcessor:(CardProcessor*)ccProcess
+{
+    NSManagedObjectContext* persistancemoc = [CoreDataHelper getCoordinatorMOC];
+    [persistancemoc performBlock:^{
+        
+        OdinTransaction *newtransaction = [CoreDataService insertObjectForEntity:@"OdinTransaction" andContext:moc];
+        
+        newtransaction.qty = @([currentCell.qty floatValue] * -1);
+        newtransaction.amount = [currentCell.amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithString:@"-1"]];
+        newtransaction.id_number = currentCell.id_number;
+        newtransaction.plu = currentCell.plu;
+        newtransaction.timeStamp = [NSDate localDate];
+        newtransaction.sync = [NSNumber numberWithBool:FALSE];
+        //total amount = amount + tax, so tax = totalAmount - amount
+        newtransaction.tax_amount = currentCell.tax_amount;
+        newtransaction.reference = [[SettingsHandler sharedHandler] getReference];
+        [[SettingsHandler sharedHandler] incrementReference];
+        newtransaction.location = currentCell.location;
+        newtransaction.item = currentCell.item;
+        //version 2.6add glcode and dept_code
+        newtransaction.glcode = currentCell.glcode;
+        newtransaction.dept_code = currentCell.dept_code;
+        newtransaction.operator = [[SettingsHandler sharedHandler] uid];
+        newtransaction.payment = @"G";
+        newtransaction.process_on_sync = currentCell.process_on_sync;
+        newtransaction.qdate = [currentCell.timeStamp asStringWithFormat:@"@YYYY-@MM-@DD"];
+        newtransaction.time = [currentCell.timeStamp asStringWithFormat:@"@hh:@mm:@ss"];
+        newtransaction.school = [SettingsHandler sharedHandler].school;
+        
+        newtransaction.cc_digit = [ccProcess getCardLast4Digits];
+        newtransaction.cc_tranid = [ccProcess responseTransactionId];
+        newtransaction.first = [ccProcess getCardFirstName];
+        newtransaction.last = [ccProcess getCardLastName];
+        newtransaction.cc_approval = [ccProcess responseApprovalCode];
+        newtransaction.cc_timeStamp = [currentCell.timeStamp convertDataToTimestamp];
+        newtransaction.cc_responsetext = [ccProcess responseText];
+        newtransaction.type = currentCell.type;
+        [CoreDataHelper saveObjectsInContext:persistancemoc];
+    }];
 }
 
 -(NSString*)calculateTotalAmount

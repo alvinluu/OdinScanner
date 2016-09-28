@@ -1,0 +1,77 @@
+//
+// Prefix header for all source files of the 'OdinScanner' target in the 'OdinScanner' project
+//
+
+#import <Availability.h>
+
+#pragma GCC diagnostic ignored "-Warc-performSelector-leaks"
+#pragma GCC diagnostic ignored "-Wformat-security"
+
+#define NAME @"name"
+#define PLU @"plus"
+#define QUANTITY @"quantity"
+#define RETAIL @"retails"
+#define DEPARTMENT @"departments"
+#define TOTAL @"total"
+#define GLCODE @"glcode"
+
+#define NOTIFICATION_RELOAD_VIEW @"NOTIFICATION_RELOAD_VIEW"
+#define NOTIFICATION_WEB_UPDATE_ITEM @"NOTIFICATION_WEB_UPDATE_ITEM"
+#define NOTIFICATION_WEB_UPDATE_STUDENT @"NOTIFICATION_WEB_UPDATE_STUDENT"
+#define NOTIFICATION_WEB_UPDATE_REFERENCE @"NOTIFICATION_WEB_UPDATE_REFERENCE"
+#define NOTIFICATION_WEB_UPLOAD_TRANSACTION @"NOTIFICATION_WEB_UPLOAD_TRANSACTION"
+#define NOTIFICATION_UPDATE_HUD @"NOTIFICATION_UPDATE_HUD"
+
+#define kAuthResource @"https://msdata.co/Portable/OdinAuth"
+#define kAmazonDBPath @"https://mksdb.comrzi7au2hp.us-east-1.rds.amazonaws.com"
+
+//period to update students, currently 5min
+#define kUpdateInterval ((5)*60)
+//interval to check authentication, currently 1 week
+#define kAuthInverval ((60)/*seconds*/*(60)/*minutes*/*(24)/*hours*/*(7)/*days*/*(1)/*weeks*/)
+
+
+#ifndef __IPHONE_3_0
+#warning "This project uses features only available in iOS SDK 3.0 and later."
+#endif
+
+#define IOS7_UP ([[UIDevice currentDevice].systemVersion floatValue] >= 6.9)
+
+
+
+#ifdef __OBJC__
+
+#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
+#import <CoreData/CoreData.h>
+//#import "CoreDataHelper.h"
+#import "CoreDataService.h"
+
+
+#import "NSString+inputChecks.h"
+#import "NSDate+asStringWithFormat.h"
+#import "UIAlertView+showSafely.h"
+#import "NSDecimalNumber+decimalFromNumber.h"
+#import "NSString+suffix.h"
+#import "NSString+HMAC_MD5.h"
+#import "NSArray+asString.h"
+#import "NSString+extra.h"
+#import "NSDictionary+extra.h"
+
+#import "AuthenticationStation.h"
+#import "SettingsHandler.h"
+
+#import "ErrorAlert.h" //old alert notification
+#import "ALAlertView+methods.h" //alert for iOS 6.0+
+#import "TestIf.h"
+#import "WebService.h"
+#import "HUDsingleton.h"//alvin
+#import "NetworkConnection.h"//alvin
+#import "StreamInOut.h"
+
+#import "OdinTransaction+Methods.h"
+#import "OdinEvent+Methods.h"
+#import "OdinStudent+Methods.h"
+
+
+#endif

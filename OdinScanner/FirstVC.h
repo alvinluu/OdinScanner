@@ -1,0 +1,31 @@
+//
+//  FirstViewController.h
+//  Scanner
+//
+//  Created by Ben McCloskey on 12/2/11.
+//  Copyright (c) 2011 Odin Inc. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import <MessageUI/MessageUI.h>
+#import "OdinViewController.h"
+#import "Patron.h"
+#import "SbtSdkFactory.h"
+#import "ISbtSdkApiDelegate.h"
+
+@interface FirstVC : OdinViewController
+<UITextFieldDelegate, 
+UIScrollViewDelegate, 
+UIPickerViewDelegate,
+UIPickerViewDataSource,
+NSXMLParserDelegate,
+MBProgressHUDDelegate,
+PatronDelegate,
+ISbtSdkApiDelegate
+
+> {
+    
+}
+
+
+@end

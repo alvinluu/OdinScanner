@@ -1,0 +1,149 @@
+// !$*UTF8*$!
+{
+	C8046ACF17FC8EF00042FE4D /* OdinScanner */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = OdinScanner;
+		sourceDirectories = (
+		);
+	};
+	C8046AE117FC8EF20042FE4D /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	C8046AE217FC8EF20042FE4D /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	C8046AE317FC8F160042FE4D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = C8E502721628A01600CF9FE6 /* en */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 45;
+		vrLoc = 0;
+	};
+	C8046AE417FC8F160042FE4D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = C8E502701628A01600CF9FE6 /* Scanner Tests-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/Odin/Documents/0 belongs to sparrow/OdinScanner2.5/OdinScanner/Scanner Tests/Scanner Tests-Info.plist";
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	C8046AE517FC8F160042FE4D /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = C8E5027D1628AB3000CF9FE6 /* Default-568h@2x.png */;
+	};
+	C8046AE617FC8F160042FE4D /* PBXTextBookmark */ = {
+		isa = PBXTextBookmark;
+		fRef = C8E502721628A01600CF9FE6 /* en */;
+		name = "InfoPlist.strings: 1";
+		rLen = 0;
+		rLoc = 0;
+		rType = 0;
+		vrLen = 45;
+		vrLoc = 0;
+	};
+	C8046AE717FC8F160042FE4D /* PlistBookmark */ = {
+		isa = PlistBookmark;
+		fRef = C8E502701628A01600CF9FE6 /* Scanner Tests-Info.plist */;
+		fallbackIsa = PBXBookmark;
+		isK = 0;
+		kPath = (
+		);
+		name = "/Users/Odin/Documents/0 belongs to sparrow/OdinScanner2.5/OdinScanner/Scanner Tests/Scanner Tests-Info.plist";
+		rLen = 0;
+		rLoc = 2147483647;
+	};
+	C8046AE817FC8F160042FE4D /* PBXBookmark */ = {
+		isa = PBXBookmark;
+		fRef = C8E5027D1628AB3000CF9FE6 /* Default-568h@2x.png */;
+	};
+	C8A445F514C06A840014616B /* Project object */ = {
+		activeBuildConfigurationName = Debug;
+		activeExecutable = C8046ACF17FC8EF00042FE4D /* OdinScanner */;
+		activeTarget = C8A445FD14C06A850014616B /* OdinScanner */;
+		codeSenseManager = C8046AE217FC8EF20042FE4D /* Code sense */;
+		executables = (
+			C8046ACF17FC8EF00042FE4D /* OdinScanner */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					665,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 402427632;
+			PBXWorkspaceStateSaveDate = 402427632;
+		};
+		perUserProjectItems = {
+			C8046AE317FC8F160042FE4D /* PBXTextBookmark */ = C8046AE317FC8F160042FE4D /* PBXTextBookmark */;
+			C8046AE417FC8F160042FE4D /* PlistBookmark */ = C8046AE417FC8F160042FE4D /* PlistBookmark */;
+			C8046AE517FC8F160042FE4D /* PBXBookmark */ = C8046AE517FC8F160042FE4D /* PBXBookmark */;
+			C8046AE617FC8F160042FE4D /* PBXTextBookmark */ = C8046AE617FC8F160042FE4D /* PBXTextBookmark */;
+			C8046AE717FC8F160042FE4D /* PlistBookmark */ = C8046AE717FC8F160042FE4D /* PlistBookmark */;
+			C8046AE817FC8F160042FE4D /* PBXBookmark */ = C8046AE817FC8F160042FE4D /* PBXBookmark */;
+		};
+		sourceControlManager = C8046AE117FC8EF20042FE4D /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	C8A445FD14C06A850014616B /* OdinScanner */ = {
+		activeExec = 0;
+		executables = (
+			C8046ACF17FC8EF00042FE4D /* OdinScanner */,
+		);
+	};
+	C8E502681628A01600CF9FE6 /* Scanner Tests */ = {
+		activeExec = 0;
+	};
+	C8E502721628A01600CF9FE6 /* en */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {843, 473}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRange = "{0, 45}";
+		};
+	};
+}

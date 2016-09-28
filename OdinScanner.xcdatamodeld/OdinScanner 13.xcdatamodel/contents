@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="13" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="6751" systemVersion="13F1077" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="LastUpdates" representedClassName="LastUpdates" syncable="YES">
+        <attribute name="lastAuth" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="lastItemUpdate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="lastSerial" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="lastStudentUpdate" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="lastUID" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="OdinEvent" representedClassName="OdinEvent" syncable="YES">
+        <attribute name="allow_amount" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="allow_edit" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="allow_item" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="allow_manual_id" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="allow_qty" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="allow_stock" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="barcode" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="chk_balance" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="dept_code" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="glcode" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="item" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="lock_cfg" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="operator" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="plu" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="qty" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="school" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="stock_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="tax" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="taxable" optional="YES" attributeType="Boolean" syncable="YES"/>
+    </entity>
+    <entity name="OdinStudent" representedClassName="OdinStudent" syncable="YES">
+        <attribute name="accnt_type" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="area_1" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_2" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_3" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_4" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_5" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_6" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_7" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_8" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="area_9" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="exportid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="id_number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last_name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last_update" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="present" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="student" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="studentuid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_1" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_2" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_3" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_4" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_5" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_6" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_7" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_8" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="time_9" optional="YES" attributeType="String" syncable="YES"/>
+    </entity>
+    <entity name="OdinTransaction" representedClassName="OdinTransaction" syncable="YES">
+        <attribute name="amount" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="cc_approval" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="cc_digit" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="cc_timeStamp" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="cc_tranid" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="dept_code" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="first" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="glcode" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="id_number" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="item" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="last" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="location" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="operator" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="payment" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="plu" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="qdate" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="qty" optional="YES" attributeType="Integer 16" defaultValueString="0" syncable="YES"/>
+        <attribute name="reference" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="school" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="sync" optional="YES" attributeType="Boolean" syncable="YES"/>
+        <attribute name="tax_amount" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="time" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="timeStamp" optional="YES" attributeType="Date" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="LastUpdates" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OdinEvent" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OdinStudent" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="OdinTransaction" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>

@@ -1,0 +1,10 @@
+//
+// Prefix header for all source files of the 'Scanner Tests' target in the 'Scanner Tests' project
+//
+
+#ifdef __OBJC__
+	#import <UIKit/UIKit.h>
+	#import <Foundation/Foundation.h>
+#import "NSDecimalNumber+decimalFromNumber.h"
+
+#endif

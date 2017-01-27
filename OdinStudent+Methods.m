@@ -124,20 +124,12 @@
     NSLog(@"getStudentInfo %@",idNumber);
     OdinStudent  *studentCoreData = nil;
     NSDictionary *studentData = nil;
-    //get student data
-    //if online, check SQL server, if not, check core data
     
     if ([[AuthenticationStation sharedHandler] isOnline] == TRUE && [NetworkConnection isInternetOnline])
     {
         //if we're authenticated, fetch student info from web
         studentData = [WebService fetchStudentWithID:idNumber];
-        //webService will show potential error messages when it handles http error codes
-        //		if (!studentData) {
-        //			NSLog(@"no student data");
-        //			return nil;
-        //		}
     }
-    //	else
     
 #ifdef DEBUG
 				
@@ -163,114 +155,21 @@
         
         if ([arrayOfStudents count] > 0)
             studentCoreData = [arrayOfStudents objectAtIndex:0];
-        else
-        {
-            //[ErrorAlert studentNotFound:idNumber];
-            //alert post in subclass
-            return nil;
-        }
+        
         
         //if we have data, turn it into a dictionary to be returned, if not, show an error message
         if (studentCoreData){
-            //replacing
-            //studentData = [studentCoreData asDictionary];
-            NSMutableDictionary *studentAsDictionary = [[NSMutableDictionary alloc] init];
-            //[self dictionaryWithValuesForKeys:self.entity.attributesByName.allKeys];
-            //[results setObject:propertyType forKey:propertyName]
-            if(studentCoreData.accnt_type != nil)
-                [studentAsDictionary setObject:studentCoreData.accnt_type forKey:@"accnt_type"];
-            
-            if(studentCoreData.exportid != nil)
-                [studentAsDictionary setObject:studentCoreData.exportid forKey:@"exportid"];
-            
-            if(studentCoreData.id_number != nil)
-                [studentAsDictionary setObject:studentCoreData.id_number forKey:@"id_number"];
-            
-            if(studentCoreData.last_name != nil)
-                [studentAsDictionary setObject:studentCoreData.last_name forKey:@"last_name"];
-            
-            if(studentCoreData.student != nil)
-                [studentAsDictionary setObject:studentCoreData.student forKey:@"student"];
-            
-            if(studentCoreData.studentuid != nil)
-                [studentAsDictionary setObject:studentCoreData.studentuid forKey:@"studentuid"];
-            
-            if(studentCoreData.time_1 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_1 forKey:@"time_1"];
-            
-            if(studentCoreData.time_2 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_2 forKey:@"time_2"];
-            
-            if(studentCoreData.time_3 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_3 forKey:@"time_3"];
-            
-            if(studentCoreData.time_4 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_4 forKey:@"time_4"];
-            
-            if(studentCoreData.time_5 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_5 forKey:@"time_5"];
-            
-            if(studentCoreData.time_6 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_6 forKey:@"time_6"];
-            
-            if(studentCoreData.time_7 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_7 forKey:@"time_7"];
-            
-            if(studentCoreData.time_8 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_8 forKey:@"time_8"];
-            
-            if(studentCoreData.time_9 != nil)
-                [studentAsDictionary setObject:studentCoreData.time_9 forKey:@"time_9"];
-            
-            if(studentCoreData.present != nil)
-                [studentAsDictionary setObject:studentCoreData.present forKey:@"present"];
-            
-            if(studentCoreData.area_1 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_1 forKey:@"area_1"];
-            
-            if(studentCoreData.area_2 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_2 forKey:@"area_2"];
-            
-            if(studentCoreData.area_3 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_3 forKey:@"area_3"];
-            
-            if(studentCoreData.area_4 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_4 forKey:@"area_4"];
-            
-            if(studentCoreData.area_5 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_5 forKey:@"area_5"];
-            
-            if(studentCoreData.area_6 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_6 forKey:@"area_6"];
-            
-            if(studentCoreData.area_7 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_7 forKey:@"area_7"];
-            
-            if(studentCoreData.area_8 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_8 forKey:@"area_8"];
-            
-            if(studentCoreData.area_9 != nil)
-                [studentAsDictionary setObject:studentCoreData.area_9 forKey:@"area_9"];
-            
-            if(studentCoreData.last_update != nil)
-                [studentAsDictionary setObject:studentCoreData.last_update forKey:@"last_update"];
-#ifdef DEBUG
-            NSLog(@"%@ As Dictionary:%@",[[self class] description],[studentAsDictionary description]);
-#endif
-            
-            return [NSDictionary dictionaryWithDictionary:studentAsDictionary];
-            
+            studentData = [self getStudentOfflineInfoForID:idNumber andMOC:managedObjectContext];
         }
-        //			else
-        //		{
-        //			return nil;
-        //		}
     }
     
 #ifdef DEBUG
 				NSLog(@"exit getStudentInfo %@ with student %@",idNumber,studentData);
 #endif
-    return studentData;
+    NSDecimalNumber* balance = [[NSDecimalNumber alloc] initWithDouble:[TestIf studentOfflineBalanceWithID:idNumber]];
+    NSMutableDictionary* dict = [[NSMutableDictionary alloc] initWithDictionary:studentData];
+    [dict setObject:balance forKey:@"present"];
+    return [[NSDictionary alloc] initWithDictionary:dict];
 }
 +(NSDictionary *) getStudentOfflineInfoForID:(NSString *)idNumber andMOC:(NSManagedObjectContext *)managedObjectContext
 {
@@ -359,8 +258,11 @@
         if(studentCoreData.time_9 != nil)
             [studentAsDictionary setObject:studentCoreData.time_9 forKey:@"time_9"];
         
-        if(studentCoreData.present != nil)
-            [studentAsDictionary setObject:studentCoreData.present forKey:@"present"];
+        if(studentCoreData.present != nil) {
+            NSDecimalNumber* present = [[NSDecimalNumber alloc] initWithDouble: [TestIf studentOfflineBalanceWithID:idNumber]];
+            //[studentAsDictionary setObject:studentCoreData.present forKey:@"present"];
+            [studentAsDictionary setObject:present forKey:@"present"];
+        }
         
         if(studentCoreData.area_1 != nil)
             [studentAsDictionary setObject:studentCoreData.area_1 forKey:@"area_1"];
@@ -407,35 +309,48 @@
     
     //    return studentData;
 }
-+ (void) updateThisStudentWith:(NSDictionary *)studentInfoFromWeb andMOC:(NSManagedObjectContext *)moc
++ (void) updateThisStudentWith:(NSDictionary *)studentInfoFromWeb andMOC:(NSManagedObjectContext *)moc sync:(BOOL)sync
 {
 #ifdef DEBUG
-    //NSLog([individualStudent description]);
+    NSLog([studentInfoFromWeb description]);
 #endif
+    
+    if ([AuthenticationStation sharedHandler].isSyncing && !sync) {
+        return;
+    }
     //check if the student being loaded already exists in Core Data. If so, update them, if not, create a new one.
     OdinStudent *studentToAdd;
-    NSArray *arrayOfStudentsInCoreData;
-    if ([studentInfoFromWeb objectForKey:@"id_number"])
-    {
-        NSString *id_number = [studentInfoFromWeb objectForKey:@"id_number"];
-        arrayOfStudentsInCoreData = [CoreDataService searchObjectsForEntity:@"OdinStudent"
-                                                              withPredicate:[NSPredicate predicateWithFormat:@"id_number == %@",id_number]
-                                                                 andSortKey:nil
-                                                           andSortAscending:NO
-                                                                 andContext:moc];
-#ifdef DEBUG
-        int countForArray = [arrayOfStudentsInCoreData count];
-        NSString *assertFailed = [NSString stringWithFormat:@"should never be two entries with the same ID. total of %i students with ID:%@.",countForArray, id_number];
-        if (countForArray >= 2)
-            NSLog(assertFailed);
-//        NSAssert((countForArray < 2), assertFailed);
-#endif
-    }
-    if ([arrayOfStudentsInCoreData count] > 0)
-        studentToAdd = [arrayOfStudentsInCoreData objectAtIndex:0];
-    else
-        studentToAdd = [CoreDataService insertObjectForEntity:@"OdinStudent"  andContext:moc];
+    BOOL foundStudent = false;
     
+    if (sync) {
+        
+        studentToAdd = [CoreDataService insertObjectForEntity:@"OdinStudent"  andContext:moc];
+    } else {
+        NSArray *arrayOfStudentsInCoreData;
+        if ([studentInfoFromWeb objectForKey:@"id_number"])
+        {
+            NSString *id_number = [studentInfoFromWeb objectForKey:@"id_number"];
+            arrayOfStudentsInCoreData = [CoreDataService searchObjectsForEntity:@"OdinStudent"
+                                                                  withPredicate:[NSPredicate predicateWithFormat:@"id_number == %@",id_number]
+                                                                     andSortKey:nil
+                                                               andSortAscending:NO
+                                                                     andContext:moc];
+#ifdef DEBUG
+            int countForArray = [arrayOfStudentsInCoreData count];
+            NSString *assertFailed = [NSString stringWithFormat:@"should never be two entries with the same ID. total of %i students with ID:%@.",countForArray, id_number];
+            if (countForArray >= 2)
+                NSLog(assertFailed);
+            //        NSAssert((countForArray < 2), assertFailed);
+#endif
+        }
+        if ([arrayOfStudentsInCoreData count] > 0) {
+            studentToAdd = [arrayOfStudentsInCoreData objectAtIndex:0];
+            foundStudent = true;
+        }
+        else {
+            studentToAdd = [CoreDataService insertObjectForEntity:@"OdinStudent"  andContext:moc];
+        }
+    }
     studentToAdd.last_update = [NSDate localDate];
     //now that we have a handle on the core data entry, loop through each element of the dictionary and enter it into the student obejct in Core Data
     NSEnumerator *enumerator = [studentInfoFromWeb keyEnumerator];
@@ -495,7 +410,8 @@
         
     }
 #ifdef DEBUG
-    NSLog(@"Added %@ %@ with ID:%@ and present:$%@ %@",studentToAdd.student, studentToAdd.last_name, studentToAdd.id_number, studentToAdd.present, studentToAdd.last_update);
+    NSString* function = foundStudent ? @"Auto Update" : @"Added";
+    NSLog(@"%@ %@ %@ with ID:%@ and present:$%@ %@",function, studentToAdd.student, studentToAdd.last_name, studentToAdd.id_number, studentToAdd.present, studentToAdd.last_update);
 #endif
 }
 

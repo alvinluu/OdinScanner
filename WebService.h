@@ -13,7 +13,7 @@
 @property (nonatomic, strong) NSString* responseString;
 //--------------------------------------------------------------------------------------
 + (NSDictionary *)getAuthStatus;
-+ (NSDictionary *)getDefaultParameters;
++ (NSDictionary *)getDefaultParametersWithSync:(BOOL)sync;
 //--------------------------------------------------------------------------------------
 + (int)fetchReferenceNumberAFN;
 + (void)fetchReferenceNumberAFNRecall;

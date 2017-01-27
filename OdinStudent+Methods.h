@@ -11,7 +11,7 @@
 @interface OdinStudent (Methods)
 
 +(NSDictionary *) getStudentInfoForID:(NSString *)idNumber andMOC:(NSManagedObjectContext *)managedObjectContext;
-+(void) updateThisStudentWith:(NSDictionary *)studentFromWeb andMOC:(NSManagedObjectContext *)moc;
++(void) updateThisStudentWith:(NSDictionary *)studentFromWeb andMOC:(NSManagedObjectContext *)moc sync:(BOOL)sync;
 +(OdinStudent *) getStudentObjectForID:(NSString *)idNumber andMOC:(NSManagedObjectContext *)managedObjectContext;
 
 +(NSDictionary *) getStudentOfflineInfoForID:(NSString *)idNumber andMOC:(NSManagedObjectContext *)managedObjectContext;

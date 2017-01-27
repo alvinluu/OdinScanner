@@ -21,7 +21,6 @@
 		52B1FD4E1C6003EE00B040C6 /* Inventory.m in Sources */ = {isa = PBXBuildFile; fileRef = 52B1FD4C1C6003EE00B040C6 /* Inventory.m */; };
 		52B1FD4F1C6003EE00B040C6 /* Inventory.xib in Resources */ = {isa = PBXBuildFile; fileRef = 52B1FD4D1C6003EE00B040C6 /* Inventory.xib */; };
 		52C801691C985DD400213285 /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C801681C985DD400213285 /* CoreBluetooth.framework */; };
-		52C8017F1C99DF9400213285 /* libsymbolbt-sdk.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 52C8017E1C99DF9400213285 /* libsymbolbt-sdk.a */; };
 		52E3E0B41C46A813008D5672 /* CoreDataService.m in Sources */ = {isa = PBXBuildFile; fileRef = 52E3E0B31C46A813008D5672 /* CoreDataService.m */; };
 		52ED170C1C6BCAE600F87DB3 /* TableCustomCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 52ED170B1C6BCAE600F87DB3 /* TableCustomCell.m */; };
 		C8047EBD16418A2200E7BF02 /* UIViewController+HUDControls.m in Sources */ = {isa = PBXBuildFile; fileRef = C8047EBC16418A2200E7BF02 /* UIViewController+HUDControls.m */; };
@@ -192,13 +191,6 @@
 		52B1FD4D1C6003EE00B040C6 /* Inventory.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Inventory.xib; sourceTree = "<group>"; };
 		52C627AF1D90739F00D575D3 /* OdinScanner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = OdinScanner.entitlements; sourceTree = "<group>"; };
 		52C801681C985DD400213285 /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
-		52C801781C99DF9400213285 /* ISbtSdkApi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISbtSdkApi.h; sourceTree = "<group>"; };
-		52C801791C99DF9400213285 /* ISbtSdkApiDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ISbtSdkApiDelegate.h; sourceTree = "<group>"; };
-		52C8017A1C99DF9400213285 /* RMDAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RMDAttributes.h; sourceTree = "<group>"; };
-		52C8017B1C99DF9400213285 /* SbtScannerInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SbtScannerInfo.h; sourceTree = "<group>"; };
-		52C8017C1C99DF9400213285 /* SbtSdkDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SbtSdkDefs.h; sourceTree = "<group>"; };
-		52C8017D1C99DF9400213285 /* SbtSdkFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SbtSdkFactory.h; sourceTree = "<group>"; };
-		52C8017E1C99DF9400213285 /* libsymbolbt-sdk.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = "libsymbolbt-sdk.a"; sourceTree = "<group>"; };
 		52E3E0B21C46A813008D5672 /* CoreDataService.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreDataService.h; sourceTree = "<group>"; };
 		52E3E0B31C46A813008D5672 /* CoreDataService.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CoreDataService.m; sourceTree = "<group>"; };
 		52ED170A1C6BCAE600F87DB3 /* TableCustomCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TableCustomCell.h; sourceTree = "<group>"; };
@@ -449,7 +441,6 @@
 			files = (
 				52C801691C985DD400213285 /* CoreBluetooth.framework in Frameworks */,
 				5254D4131BF10E2E00EF49D0 /* ExternalAccessory.framework in Frameworks */,
-				52C8017F1C99DF9400213285 /* libsymbolbt-sdk.a in Frameworks */,
 				C82145CF1BB5BCA1005DAE35 /* libcrypto.a in Frameworks */,
 				C82145D11BB5BD14005DAE35 /* libdtdev.a in Frameworks */,
 				C82145D21BB5BD14005DAE35 /* libssl.a in Frameworks */,
@@ -496,28 +487,6 @@
 				52ED170B1C6BCAE600F87DB3 /* TableCustomCell.m */,
 			);
 			name = XIB;
-			sourceTree = "<group>";
-		};
-		52C801761C99DF9400213285 /* symbolbt-sdk */ = {
-			isa = PBXGroup;
-			children = (
-				52C801771C99DF9400213285 /* include */,
-				52C8017E1C99DF9400213285 /* libsymbolbt-sdk.a */,
-			);
-			path = "symbolbt-sdk";
-			sourceTree = "<group>";
-		};
-		52C801771C99DF9400213285 /* include */ = {
-			isa = PBXGroup;
-			children = (
-				52C801781C99DF9400213285 /* ISbtSdkApi.h */,
-				52C801791C99DF9400213285 /* ISbtSdkApiDelegate.h */,
-				52C8017A1C99DF9400213285 /* RMDAttributes.h */,
-				52C8017B1C99DF9400213285 /* SbtScannerInfo.h */,
-				52C8017C1C99DF9400213285 /* SbtSdkDefs.h */,
-				52C8017D1C99DF9400213285 /* SbtSdkFactory.h */,
-			);
-			path = include;
 			sourceTree = "<group>";
 		};
 		C804AFBF18158A6A00672C1B /* icons and images */ = {
@@ -751,7 +720,6 @@
 		C8A4460114C06A850014616B /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				52C801761C99DF9400213285 /* symbolbt-sdk */,
 				52C801681C985DD400213285 /* CoreBluetooth.framework */,
 				C82145CE1BB5BCA1005DAE35 /* libcrypto.a */,
 				C8EF054C1A1D45AC007B96C0 /* libssl.a */,
@@ -1377,6 +1345,7 @@
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Alvin Luu (3QQY697ZAJ)";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Alvin Luu (3QQY697ZAJ)";
+				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OdinScanner-Prefix.pch";
@@ -1403,8 +1372,9 @@
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1426,7 +1396,8 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OdinScanner-Prefix.pch";
@@ -1450,8 +1421,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_AFTER_BUILD = NO;
@@ -1526,7 +1498,8 @@
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "OdinScanner-Prefix.pch";
@@ -1550,8 +1523,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "";
+				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_AFTER_BUILD = NO;

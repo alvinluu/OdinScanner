@@ -20,8 +20,8 @@
 //#define iOSVersion7Plus (floor(NSFoundationVersionNumber) > NSFoundationVersionNumber_iOS_6_1)
 @interface WebService ()
 
-+(NSDictionary *)addDefaultParamsTo:(NSDictionary *)requestParams;
-+(NSDictionary *)getDefaultParameters;
++(NSDictionary *)addDefaultParamsTo:(NSDictionary *)requestParams sync:(BOOL)sync;
+//+(NSDictionary *)getDefaultParametersWithSync:(BOOL)sync;
 +(NSMutableData *)bodyAsJSONDataFromDict:(NSDictionary *)postParams;
 //+(ASIFormDataRequest *)createPOSTRequestWithResource:(NSString *)resourceComponent andParams:(NSDictionary *)postParams;
 
@@ -29,13 +29,13 @@
 @implementation WebService
 
 @synthesize responseString;
-+(NSDictionary *)getDefaultParameters
++(NSDictionary *)getDefaultParametersWithSync:(BOOL)sync
 {
-    return [WebService addDefaultParamsTo:nil];
+    return [WebService addDefaultParamsTo:nil sync:sync];
 }
 
 //adds the 3 default parameters that must be included in any web request to a given dictionary of parameters
-+(NSDictionary *)addDefaultParamsTo:(NSDictionary *)requestParams
++(NSDictionary *)addDefaultParamsTo:(NSDictionary *)requestParams sync:(BOOL)sync
 {
     if (requestParams == nil)
         requestParams = [[NSDictionary alloc] init];
@@ -47,6 +47,9 @@
     NSString *OSVersion = [UIDevice currentDevice].systemVersion;
     NSString *appVersion = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
     NSString *deviceType = [UIDevice currentDevice].model;
+    NSNumber *idstart = [[NSNumber alloc] initWithInt: setting.idStart];
+    NSNumber *idstop = [[NSNumber alloc] initWithInt: setting.idStop];
+    NSNumber *isSync = [[NSNumber alloc] initWithBool: sync];
     BOOL MSSQL = setting.isMSSQL;
     
     
@@ -76,6 +79,9 @@
     [paramDict setValue:[NSNumber numberWithBool:setting.useExportID] forKey:@"exportID"];
     [paramDict setValue:[NSNumber numberWithBool:setting.holdTransactions] forKey:@"holdtran"];
     [paramDict setValue:[NSNumber numberWithBool:setting.useLineaDevice] forKey:@"uselinea"];
+    [paramDict setValue:idstart forKey:@"idstart"];
+    [paramDict setValue:idstop forKey:@"idstop"];
+    [paramDict setValue:isSync forKey:@"isSync"];
     
     return [NSDictionary dictionaryWithDictionary:paramDict];
 }
@@ -118,7 +124,7 @@
 {
     __block NSDictionary *responseDict;
     
-    NSDictionary *requestParams = [WebService getDefaultParameters];
+    NSDictionary *requestParams = [WebService getDefaultParametersWithSync:false];
     //create Request and start it
     AFHTTPRequestOperationManager* manager = [WebService createAFHTTPRequestWithPortableURL];
     
@@ -173,7 +179,7 @@
  */
 +(int) fetchReferenceNumberAFN
 {
-    NSDictionary *requestParams = [self getDefaultParameters];
+    NSDictionary *requestParams = [self getDefaultParametersWithSync:true];
     
     
     __block int responseCode = 0;
@@ -234,7 +240,7 @@
 }
 +(void) fetchReferenceNumberAFNRecall
 {
-    NSDictionary *requestParams = [self getDefaultParameters];
+    NSDictionary *requestParams = [self getDefaultParametersWithSync:true];
     
     
     __block int responseCode = 0;
@@ -265,7 +271,7 @@
               
               
               
-              NSDictionary* json = ([responseString isEqualToString:@""]) ? @{@"reference" : @"I 0"} : [NSJSONSerialization JSONObjectWithData:responseObject options:kNilOptions error:&error];
+              NSDictionary* json = ([responseString isEqualToString:@""] || [responseString isEqualToString:@"{}"]) ? @{@"reference" : @"I 0"} : [NSJSONSerialization JSONObjectWithData:responseObject options:kNilOptions error:&error];
               
               
               referenceString = [json objectForKey:@"reference"];
@@ -297,7 +303,7 @@
                                          @"response_error":@"failed",
                                          @"response_string":[error description]};
               NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
-              [nc postNotificationName:NOTIFICATION_WEB_UPDATE_STUDENT object:nil userInfo:userInfo];
+              [nc postNotificationName:NOTIFICATION_WEB_UPDATE_REFERENCE object:nil userInfo:userInfo];
               
               [WebService postError:@{@"error":@"Fetch Reference",@"message":error.description}];
           }];
@@ -329,11 +335,12 @@
 +(NSArray *)itemFetchMiddlemanAFN:(NSString *)plu
 {
     NSDictionary *requestParams = nil;
+    BOOL sync = plu == nil;
     
     //plu is optional, add to parameters if it exists
     if (plu != nil)
         requestParams = [[NSDictionary alloc] initWithObjectsAndKeys:plu,@"plu",nil];
-    requestParams = [WebService addDefaultParamsTo:requestParams];
+    requestParams = [WebService addDefaultParamsTo:requestParams sync:sync];
     
     __block int responseCode = 0;
     __block NSArray* responseArray = [[NSArray alloc]init];;
@@ -416,7 +423,7 @@
 {
     
     NSDictionary *requestParams = [[NSDictionary alloc] initWithObjectsAndKeys:[NSNumber numberWithBool:TRUE],@"register",barcode,@"barcode",nil];
-    requestParams = [self addDefaultParamsTo:requestParams];
+    requestParams = [self addDefaultParamsTo:requestParams sync:false];
     
     int responseCode = 0;
     int count = 0;
@@ -489,12 +496,13 @@
     
     
     NSDictionary *requestParams = nil;
+    BOOL sync = id_number == nil;
     
     //ID Number is optional, add to parameters if it exists to search for a particular ID
     //if ID is nil, the WebService will return all students
     if (id_number != nil)
         requestParams = [[NSDictionary alloc] initWithObjectsAndKeys:id_number,@"id_number",nil];
-    requestParams = [self addDefaultParamsTo:requestParams];
+    requestParams = [self addDefaultParamsTo:requestParams sync:sync];
     
     
     AFHTTPRequestOperationManager* manager = [WebService createAFHTTPRequestWithPortableURL];
@@ -521,19 +529,19 @@
 //                  NSLog(@"Student Download: %@", [responseArray description]);
 #endif
                   responseCode = [task.response statusCode];
-                  NSDictionary* userInfo = @{@"response_code":[NSString stringWithFormat:@"%i",responseCode],
-                                             @"response_error":@"connected",
-                                             @"response_string":responseString};
                   NSNotificationCenter* nc = [NSNotificationCenter defaultCenter];
                   if (id_number) {
                       
                       if ([responseArray isKindOfClass:[NSDictionary class]]) {
                           NSManagedObjectContext *moc = [CoreDataService getMainMOC];
                           NSDictionary* studentToUpdateAsDictionary = (NSDictionary*)responseArray;
-                          [OdinStudent updateThisStudentWith:studentToUpdateAsDictionary andMOC:moc];
+                          [OdinStudent updateThisStudentWith:studentToUpdateAsDictionary andMOC:moc sync:false];
                       }
                   } else
                   {
+                      NSDictionary* userInfo = @{@"response_code":[NSString stringWithFormat:@"%i",responseCode],
+                                                 @"response_error":@"connected",
+                                                 @"response_string":responseString};
                       [nc postNotificationName:NOTIFICATION_WEB_UPDATE_STUDENT object:nil userInfo:userInfo];
                   }
                   dispatch_semaphore_signal(semaphore);
@@ -575,12 +583,13 @@
     
     
     NSDictionary *requestParams = nil;
+    BOOL sync = id_number == nil;
     
     //ID Number is optional, add to parameters if it exists to search for a particular ID
     //if ID is nil, the WebService will return all students
     if (id_number != nil)
         requestParams = [[NSDictionary alloc] initWithObjectsAndKeys:id_number,@"id_number",nil];
-    requestParams = [self addDefaultParamsTo:requestParams];
+    requestParams = [self addDefaultParamsTo:requestParams sync:sync];
     
     
     AFHTTPRequestOperationManager* manager = [WebService createAFHTTPRequestWithPortableURL];
@@ -592,8 +601,8 @@
 //    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
 //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
     
-//        manager.requestSerializer.timeoutInterval = 60;
-        
+        manager.requestSerializer.timeoutInterval = 60;
+    
         [manager POST:@"Students" parameters:requestParams
               success:^(AFHTTPRequestOperation *task, id responseObject) {
                   NSError* error;
@@ -619,7 +628,7 @@
                           NSDictionary* studentToUpdateAsDictionary = (NSDictionary*)responseArray;
                           [moc performBlock:^{
                               
-                              [OdinStudent updateThisStudentWith:studentToUpdateAsDictionary andMOC:moc];
+                              [OdinStudent updateThisStudentWith:studentToUpdateAsDictionary andMOC:moc sync:false];
                               [CoreDataHelper saveObjectsInContext:moc];
                               [AuthenticationStation sharedHandler].isStudentChecking = false;
                           }];
@@ -667,20 +676,6 @@
         return nil;
     }
     
-    //Don't check any student if during synchronizing
-    //	if () {return nil;}
-    
-    NSManagedObjectContext *moc = [CoreDataService getMainMOC];
-    //Fetch reference number from database if CoreData is empty or start from default value
-    NSArray *syncArray = [CoreDataService searchObjectsForEntity:@"OdinStudent"
-                                                   withPredicate:nil
-                                                      andSortKey:nil
-                                                andSortAscending:NO
-                                                      andContext:moc];
-    //Don't run if there are no student
-    if ([syncArray count] < 1) {return nil;}
-    
-    
     NSArray *studentArray = [self studentFetchMiddlemanAFN:id_number];
     
     if (studentArray == nil) {
@@ -713,7 +708,7 @@
     NSData *transactionForDictionary = [[tran JSONRepresentation] JSONValue];
     
     NSDictionary *requestParams = [NSDictionary dictionaryWithObjectsAndKeys:transactionForDictionary,@"transaction", nil];
-    requestParams = [WebService addDefaultParamsTo:requestParams];
+    requestParams = [WebService addDefaultParamsTo:requestParams sync:false];
     
 #ifdef DEBUG
     NSLog(@"AFN POST uploaded transaction: %@",[requestParams description]);
@@ -771,7 +766,7 @@
     NSData *transactionForDictionary = [[tran JSONRepresentation] JSONValue];
     
     NSDictionary *requestParams = [NSDictionary dictionaryWithObjectsAndKeys:transactionForDictionary,@"transaction", nil];
-    requestParams = [WebService addDefaultParamsTo:requestParams];
+    requestParams = [WebService addDefaultParamsTo:requestParams sync:false];
     
 #ifdef DEBUG
     NSLog(@"AFN POST uploaded transaction: %@",[requestParams description]);
@@ -833,7 +828,7 @@
     NSData *transactionForDictionary = [[tran JSONRepresentation] JSONValue];
     
     NSDictionary *requestParams = [NSDictionary dictionaryWithObjectsAndKeys:transactionForDictionary,@"transaction", nil];
-    requestParams = [WebService addDefaultParamsTo:requestParams];
+    requestParams = [WebService addDefaultParamsTo:requestParams sync:false];
     
 #ifdef DEBUG
     NSLog(@"AFN POST uploaded transaction: %@",[requestParams description]);
@@ -895,7 +890,7 @@
     NSData *transactionForDictionary = [[transaction JSONRepresentation] JSONValue];
     
     NSDictionary *requestParams = [NSDictionary dictionaryWithObjectsAndKeys:transactionForDictionary,@"transaction", nil];
-    requestParams = [WebService addDefaultParamsTo:requestParams];
+    requestParams = [WebService addDefaultParamsTo:requestParams sync:false];
     
 #ifdef DEBUG
     NSLog(@"AFN POST Batch uploaded transaction: %@",[requestParams description]);
@@ -1189,7 +1184,7 @@
  */
 + (void)postError:(NSDictionary*)params
 {
-    NSDictionary *requestParams = [WebService getDefaultParameters];
+    NSDictionary *requestParams = [WebService getDefaultParametersWithSync:true];
     //create Request and start it
     AFHTTPRequestOperationManager* manager = [WebService createAFHTTPRequestWithPortableURL];
     NSMutableDictionary* dict = [[NSMutableDictionary alloc] initWithDictionary:requestParams];
@@ -1261,7 +1256,7 @@
     manager.completionQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
     float timeout = deviceType >= 5? 15:90;
 #ifdef DEBUG
-    NSLog(@"network timeout %f",timeout);
+//    NSLog(@"network timeout set %f",timeout);
 #endif
     //    manager.responseSerializer = [AFXMLParserResponseSerializer serializer];
     

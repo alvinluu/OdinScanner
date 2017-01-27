@@ -31,7 +31,7 @@
 	NSArray *studentArray = [self createKentStyleStudentReturn];
 	for (NSDictionary *studentDictionary in studentArray)
 	{
-		[OdinStudent updateThisStudentWith:studentDictionary andMOC:ctx];
+        [OdinStudent updateThisStudentWith:studentDictionary andMOC:ctx sync:true];
 	}
 	[CoreDataHelper saveObjectsInContext:ctx];
 	for (NSDictionary *studentDictionary in studentArray)
@@ -91,7 +91,7 @@
 	NSArray *studentArray = [self createRegularStudentReturn];
 	for (NSDictionary *studentDictionary in studentArray)
 	{
-		[OdinStudent updateThisStudentWith:studentDictionary andMOC:ctx];
+        [OdinStudent updateThisStudentWith:studentDictionary andMOC:ctx sync:true];
 	}
 	[CoreDataHelper saveObjectsInContext:ctx];
 	for (NSDictionary *studentDictionary in studentArray)

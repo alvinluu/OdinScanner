@@ -66,7 +66,6 @@
 NSMutableArray* transArray;
 NSTimer* myTimer;
 UIAlertView* alert;
-id <ISbtSdkApi> apiInstance;
 
 //NSString *currentReference;
 
@@ -235,16 +234,17 @@ id <ISbtSdkApi> apiInstance;
         //--get online balance here
         NSDictionary* student = [OdinStudent getStudentInfoForID:idNumber andMOC:[CoreDataHelper getMainMOC]];
         
-        if([AuthenticationStation sharedHandler].isOnline && [TestIf account:student
-                                                             canPurchaseItem:selectedItem
-                                                                   forAmount:totalAmount])
+#ifdef DEBUG
+        NSLog(@"student balance is %@",[student objectForKey:@"present"]);
+#endif
+        if([TestIf account:student canPurchaseItem:selectedItem forAmount:totalAmount])
         {
             [self postTransaction];
         } else
         {
             NSNumber* funds = [student objectForKey:@"present"];
             if (selectedItem.chk_balance.boolValue) {
-                [AuthenticationStation sharedHandler].isOnline ? [self alertChargeInsufficient] : [self alertChargeOffline];
+                [self alertChargeInsufficient];
             }
             else {
                 [self postTransaction];
@@ -517,7 +517,10 @@ id <ISbtSdkApi> apiInstance;
     }
     [itemPicker reloadAllComponents];
     //    });
-    //[self updateManageBadge];
+    
+#ifdef DEBUG
+    NSLog(@"selectedItem: %@ student: %@", selectedItem, selectedIdNumber);
+#endif
 }
 
 //if there is a single item in the Picker, this selects it
@@ -592,83 +595,12 @@ id <ISbtSdkApi> apiInstance;
             idButton.enabled = selectedItem.allow_manual_id.boolValue;
             idButton.backgroundColor = idButton.enabled ? processButton.backgroundColor : [UIColor grayColor];
             
+#ifdef DEBUG
+            NSLog([NSString stringWithFormat: @"picker selected item %@ %@ %@ edit:%@ manual:%@", selectedItem.item, selectedItem.amount, selectedItem.qty, selectedItem.allow_edit, selectedItem.allow_manual_id]);
+#endif
+            
         }
     }
-}
-#pragma mark - Zebra Init
--(void)initZebraScanner
-{
-    
-    apiInstance = [SbtSdkFactory createSbtSdkApiInstance];
-    
-#ifdef DEBUG
-    NSLog(@"Zebra SDK version: %@\n",[apiInstance sbtGetVersion]);
-#endif
-    [apiInstance sbtSetDelegate:self];
-    // Subscribe to scanner appearance/disappearance, session establishment/termination,
-    // barcode, and image & video event notifications.
-    [apiInstance sbtSubsribeForEvents:SBT_EVENT_SCANNER_APPEARANCE |
-     SBT_EVENT_SCANNER_DISAPPEARANCE | SBT_EVENT_SESSION_ESTABLISHMENT |
-     SBT_EVENT_SESSION_TERMINATION | SBT_EVENT_BARCODE];
-    [apiInstance sbtSetOperationalMode:SBT_OPMODE_ALL];
-    [apiInstance sbtEnableAvailableScannersDetection:YES];
-}
-#pragma mark - Zebra Delegate
-/**
- * This will fire when barcode scan
- */
--(void)sbtEventBarcode:(NSString *)barcodeData barcodeType:(int)barcodeType fromScanner:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventBarcode %@",barcodeData);
-#endif
-}
-
--(void)sbtEventBarcodeData:(NSData *)barcodeData barcodeType:(int)barcodeType fromScanner:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventBarcodeData");
-#endif
-}
-
--(void)sbtEventCommunicationSessionEstablished:(SbtScannerInfo *)activeScanner
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventCommunicationSessionEstablished");
-#endif
-}
--(void)sbtEventCommunicationSessionTerminated:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventCommunicationSessionTerminated");
-#endif
-}
-- (void)sbtEventImage:(NSData *)imageData fromScanner:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventImage");
-#endif
-}
--(void)sbtEventScannerAppeared:(SbtScannerInfo *)availableScanner
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventScannerAppeared");
-#endif
-    if (apiInstance != nil) {
-        [apiInstance sbtEstablishCommunicationSession:availableScanner.getScannerID];
-    }
-}
--(void)sbtEventScannerDisappeared:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventScannerDisappeared");
-#endif
-}
--(void)sbtEventVideo:(NSData *)videoFrame fromScanner:(int)scannerID
-{
-#ifdef DEBUG
-    NSLog(@"zebra sbtEventVideo");
-#endif
 }
 
 #pragma mark - Linea Delegate calls
@@ -968,7 +900,6 @@ id <ISbtSdkApi> apiInstance;
 #ifdef DEBUG
 #endif
     [self refreshLinea];
-    [self initZebraScanner];
     
     //turn off idle timer so the iPod does not go to sleep while they're scanning cards
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
@@ -1200,40 +1131,37 @@ id <ISbtSdkApi> apiInstance;
         if (selectedItem.chk_balance.boolValue) {
             
             [self HUDshowMessage:@"show charge offline"];
-            [NSThread detachNewThreadSelector:@selector(alertChargeOffline) toTarget:self withObject:nil];
+            [NSThread detachNewThreadSelector:@selector(alertChargeInsufficient) toTarget:self withObject:nil];
         } else {
             [self showSuccessful:true];
         }
         
-        //        [self alertChargeOffline];
+        //        [self alertChargeInsufficient];
     }
     //    myTimer = nil;
 }
+
 
 -(void) alertChargeInsufficient
 {
     
 #ifdef DEBUG
-    NSLog(@"alertchargeOffline %@ %@",PROCESS_INSUFFICIENT_FUNDS,selectedIdNumber);
+    NSLog(@"alertChargeInsufficient %@ %@",PROCESS_INSUFFICIENT_FUNDS,selectedIdNumber);
 #endif
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-    // Insert myTask code here
-    //    [self hideActivity];
     [self cancelTimer];
-    //        OdinStudent* student = [OdinStudent getStudentObjectForID:studentIdTextBox.text andMOC:managedObjectContext];
     
     NSDictionary* student = [OdinStudent getStudentOfflineInfoForID:selectedIdNumber andMOC:managedObjectContext];
     
     //    NSNumber* funds = [student objectForKey:@"present"];
     NSString* idNumber = [student objectForKey:@"id_number"];
-    double funds = [TestIf studentOfflineBalance:idNumber];
+    NSString* titleMsg = [AuthenticationStation sharedHandler].isOnline ? PROCESS_INSUFFICIENT_FUNDS : PROCESS_OFFLINE_FUNDS;
+    
+    NSDecimalNumber* funds = [student objectForKey:@"present"];
+    NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",titleMsg,[SettingsHandler sharedHandler].getReference];
+    NSString* message = [NSString stringWithFormat:@"%@ has funds:$%.2f?",idNumber, funds.doubleValue];
     if ([SettingsHandler sharedHandler].allowOverride) {
-        NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",PROCESS_INSUFFICIENT_FUNDS,[SettingsHandler sharedHandler].getReference];
-        NSString* message = [NSString stringWithFormat:@"%@ has funds:%.2f?",idNumber, funds];
         alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
     } else {
-        NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",HAS_FUNDS,[SettingsHandler sharedHandler].getReference];
-        NSString* message = [NSString stringWithFormat:@"%@ has funds:%.2f?",idNumber, funds];
         alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
     }
     
@@ -1253,40 +1181,7 @@ id <ISbtSdkApi> apiInstance;
     //    dispatch_async(dispatch_get_main_queue(), ^{
     //    });
 }
--(void) alertChargeOffline
-{
-    
-#ifdef DEBUG
-    NSLog(@"alertchargeOffline %@ %@",PROCESS_OFFLINE_FUNDS,selectedIdNumber);
-#endif
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-    // Insert myTask code here
-    [self hideActivity];
-    [self cancelTimer];
-    //        OdinStudent* student = [OdinStudent getStudentObjectForID:studentIdTextBox.text andMOC:managedObjectContext];
-    
-    NSDictionary* student = [OdinStudent getStudentOfflineInfoForID:selectedIdNumber andMOC:managedObjectContext];
-    
-    //    NSNumber* funds = [student objectForKey:@"present"];
-    NSString* idNumber = [student objectForKey:@"id_number"];
-    double funds = [TestIf studentOfflineBalance:idNumber];
-    if ([SettingsHandler sharedHandler].allowOverride) {
-        NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",PROCESS_OFFLINE_FUNDS,[SettingsHandler sharedHandler].getReference];
-        NSString* message = [NSString stringWithFormat:@"%@ has offline funds:%.2f?",idNumber, funds];
-        alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
-    } else {
-        NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",HAS_FUNDS,[SettingsHandler sharedHandler].getReference];
-        NSString* message = [NSString stringWithFormat:@"%@ has funds:%.2f?",idNumber, funds];
-        alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    }
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([SettingsHandler sharedHandler].isProcessingSale) {
-            
-            [alert show];
-        }
-    });
-}
+
 -(void) callAfterTenSeconds:(NSNotification*)notification
 {
     

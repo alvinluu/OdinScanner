@@ -80,7 +80,7 @@
                 || auth.isPosting
                 ) {
 #ifdef DEBUG
-                NSLog(@"cancel Transaction: nothing to upload");
+                //NSLog(@"cancel Transaction: nothing to upload");
 #endif
                 auth.isTransactionChecking = false;
                 

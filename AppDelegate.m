@@ -12,8 +12,10 @@
 #import "StudentUpdateObserver.h"
 #import "AFNetworkActivityIndicatorManager.h"
 
+
 @implementation AppDelegate
 
+#define _FUNCTION NSStringFromselector(_cmd))
 @synthesize window = _window;
 @synthesize managedObjectContext = __managedObjectContext;
 @synthesize managedObjectModel = __managedObjectModel;
@@ -23,7 +25,7 @@
 
 -(void)contextChanged:(NSNotification*)notification
 {
-    if ([notification object] == self.managedObjectContext || [NSThread isMainThread]) {
+    if (notification != nil && ([notification object] == self.managedObjectContext || [NSThread isMainThread])) {
 #ifdef DEBUG
 //        NSLog(@"OdinView contextchanged main");
 #endif
@@ -49,9 +51,10 @@
 }
 -(void)updateContext:(NSNotification *)notification andRun:(myCompletion)updateUIBlock
 {
-    
-    SEL selector = @selector(mergeChangesFromContextDidSaveNotification:);
-    [self.managedObjectContext performSelectorOnMainThread:selector withObject:notification waitUntilDone:YES];
+    if (notification != nil) {
+        SEL selector = @selector(mergeChangesFromContextDidSaveNotification:);
+        [self.managedObjectContext performSelectorOnMainThread:selector withObject:notification waitUntilDone:YES];
+    }
 }
 
 #pragma mark - Tab Bar Items
@@ -59,10 +62,10 @@
 {
     [UIView animateWithDuration:0 animations:^{
         
-        NSArray* unSyncedArray = [OdinTransaction reloadUnSyncedArray];
+        NSArray* unSyncedArray = [OdinTransaction reloadUnSyncedArrayWithMoc:[CoreDataService getCoordinatorMOC]];
         int count = unSyncedArray.count;
 #ifdef DEBUG
-    NSLog(@"OdinView updateManageBadge %i",count);
+    //NSLog(@"OdinView updateManageBadge %i",count);
 #endif
         NSString* newLabel = [NSString stringWithFormat:@"%i",count];
         newLabel = [newLabel isEqualToString:@"0"] ? nil : newLabel;

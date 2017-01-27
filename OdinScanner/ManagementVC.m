@@ -38,7 +38,8 @@
 -(void) sendBatchToPrefServer;
 -(void) updateItemList:(NSNotification*)notification;
 -(void) updateStudentList:(NSNotification*)notification;
--(void) updateReferenceNumber:(NSNotification*)notification;
+-(void) updateReferenceNumberNotif:(NSNotification*)notification;
+-(void) updateReferenceNumber;
 -(void) finishUploadTransaction:(NSNotification*)notification;
 
 @end
@@ -110,7 +111,7 @@ bool successReferenceDownload;
     }
     
     
-    //If uid is empty, prompt user to input uid; otherwise, run synchronize
+    //If uid is empty, prompt user to input uid; otherwise, synchronize
     if ([[AuthenticationStation sharedHandler].serialNumber hasPrefix:@"no device"]) {
         if ([SettingsHandler sharedHandler].useLineaDevice) {
             [ErrorAlert simpleAlertTitle:@"Serial Not Found" message:@"Scanner is inactive. \nClick scan button and try again."];
@@ -142,13 +143,13 @@ bool successReferenceDownload;
     //tell auth station we're starting a sync
     
     
-//    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
+    //    [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
     [[UIApplication sharedApplication] setIdleTimerDisabled:YES];
     
     //disable all alert while re-sync
     //[[HUDsingleton sharedHUD].HUD showWhileExecuting:@selector(finishReSync) onTarget:self withObject:nil animated:YES];
     //    [self performSelectorOnMainThread:@selector(showCacheActivity) withObject:nil waitUntilDone:true ];
-        //do something
+    //do something
     
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         //your background code here
@@ -292,42 +293,42 @@ bool successReferenceDownload;
     MBProgressHUD* HUD = [HUDsingleton sharedHUD];
     
 #ifdef DEBUG
-        NSLog(@"uploading transaction");
+    NSLog(@"uploading transaction");
 #endif
+    
+    if ([TestIf appCanUseSchoolServerAFN])
+    {
+        [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
         
-        if ([TestIf appCanUseSchoolServerAFN])
-        {
-            [[UIApplication sharedApplication] setNetworkActivityIndicatorVisible:YES];
-            
-            //Show connection status on HUD title
-            HUD.labelText = @"Authenticating";
-            HUD.detailsLabelText = @"Success";
-
-            [self sendBatchToPrefServer];
-        } else
-        {
-            //[ErrorAlert noSchoolServer];
-            [ErrorAlert noSchoolServer];
-            //Show connection status on HUD title
-            HUD.labelText = @"Authenticating";
-            HUD.detailsLabelText = @"Failed";
-            [HUD hide:true afterDelay:1];
-            [[AuthenticationStation sharedHandler]endAuth];
-        }
+        //Show connection status on HUD title
+        HUD.labelText = @"Authenticating";
+        HUD.detailsLabelText = @"Success";
+        
+        [self sendBatchToPrefServer];
+    } else
+    {
+        //[ErrorAlert noSchoolServer];
+        [ErrorAlert noSchoolServer];
+        //Show connection status on HUD title
+        HUD.labelText = @"Authenticating";
+        HUD.detailsLabelText = @"Failed";
+        [HUD hide:true afterDelay:1];
+        [[AuthenticationStation sharedHandler]endAuth];
+    }
 }
 -(void)finishUploadTransaction:(NSNotification*)notification
 {
 #ifdef DEBUG
     NSLog(@"finishUploadTransaction");
 #endif
-        
-        [self hideActivity];
-//        [self reloadTableLabel];
-        sleep(1);
-        int count = [OdinTransaction reloadUnSyncedArray].count;
-        NSString* message = count > 0 ? [NSString stringWithFormat:@"%i Failed",count] : @"";
-        [ErrorAlert simpleAlertTitle:@"Upload Completed!!" message:message];
-        [[AuthenticationStation sharedHandler]endAuth];
+    
+    [self hideActivity];
+    //        [self reloadTableLabel];
+    sleep(1);
+    int count = [OdinTransaction reloadUnSyncedArray].count;
+    NSString* message = count > 0 ? [NSString stringWithFormat:@"%i Failed",count] : @"";
+    [ErrorAlert simpleAlertTitle:@"Upload Completed!!" message:message];
+    [[AuthenticationStation sharedHandler]endAuth];
 }
 #pragma mark - Synchoronize Functions
 
@@ -353,90 +354,97 @@ bool successReferenceDownload;
     NSLog(@"updateItemList");
 #endif
     
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        [self HUDshowMessage:@"Update Items"];
+    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
+    [self HUDshowMessage:@"Update Items"];
+    
+    NSDictionary* userInfo = notification.userInfo;
+    NSString* responseCode = userInfo[@"response_code"];
+    NSString* responseString = userInfo[@"response_string"];
+    NSArray* itemsArray = [[NSArray alloc] init];
+    if ([responseString  isEqual: @""] || [responseString  isEqual: @"{}"]) {
         
-        NSDictionary* userInfo = notification.userInfo;
-        NSString* responseCode = userInfo[@"response_code"];
-        NSString* responseString = userInfo[@"response_string"];
-        NSArray* itemsArray = [responseString JSONValue];
+    } else {
+        itemsArray = [responseString JSONValue];
+    }
+    
+    
+    //    [[SettingsHandler sharedHandler] setIsItemSuccessReSync:NO];
+    
+    //download item list
+    //	NSArray *itemsArray = [WebService fetchItemList];
+    __block int itemListSize = [itemsArray count];
+    
+    if (itemListSize > 0)
+    {
         
-        
-        //    [[SettingsHandler sharedHandler] setIsItemSuccessReSync:NO];
-        
-        //download item list
-        //	NSArray *itemsArray = [WebService fetchItemList];
-        __block int itemListSize = [itemsArray count];
-        
-        if (itemListSize > 0)
-        {
+        //ERROR: downloading
+        NSDictionary* status = [itemsArray objectAtIndex:0];
+        if ([status valueForKey:@"response_code"]) {
+            [self hideActivity];
+            NSString* serial = [NSString stringWithFormat:@"serial:%@",[AuthenticationStation sharedHandler].serialNumber];
+            NSString* portid = [NSString stringWithFormat:@"portableid:%@",[SettingsHandler sharedHandler].uid];
+            NSString* message = [NSString stringWithFormat:@"%@\n%@\n%@",[status valueForKey:@"response_error"],serial,portid];
+            //[ErrorAlert simpleAlertTitle:@"Failed to Connect to Server" message:message];
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:ERR_FAIL_TO_DOWNLOAD_ITEM message:message delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Retry",@"Email", nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Update the UI
+                
+                [alert show];
+            });
             
-            //ERROR: downloading
-            NSDictionary* status = [itemsArray objectAtIndex:0];
-            if ([status valueForKey:@"response_code"]) {
-                [self hideActivity];
-                NSString* serial = [NSString stringWithFormat:@"serial:%@",[AuthenticationStation sharedHandler].serialNumber];
-                NSString* portid = [NSString stringWithFormat:@"portableid:%@",[SettingsHandler sharedHandler].uid];
-                NSString* message = [NSString stringWithFormat:@"%@\n%@\n%@",[status valueForKey:@"response_error"],serial,portid];
-                //[ErrorAlert simpleAlertTitle:@"Failed to Connect to Server" message:message];
-                UIAlertView* alert = [[UIAlertView alloc] initWithTitle:ERR_FAIL_TO_DOWNLOAD_ITEM message:message delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Retry",@"Email", nil];
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    // Update the UI
-                    
-                    [alert show];
-                });
+        } else {
+            successItemDownload = true;
+            __block int itemListTotalSize = itemListSize;
+            __block int randamount = itemListTotalSize > 50 ? 50 : 1;
+            __block int randnum = arc4random()%itemListTotalSize%randamount;
+            
+            //HUD.detailsLabelText = [NSString stringWithFormat:@"Retrieving %i Items Success", [itemsArray count]];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //your code here
+                NSManagedObjectContext *moc = [CoreDataHelper getMainMOC];
                 
-            } else {
-                successItemDownload = true;
-                __block int itemListTotalSize = itemListSize;
-                __block int randamount = itemListTotalSize > 50 ? 50 : 1;
-                __block int randnum = arc4random()%itemListTotalSize%randamount;
+                [CoreDataService deleteAllObjectsForEntity:@"OdinEvent" andContext:moc];
                 
-                //HUD.detailsLabelText = [NSString stringWithFormat:@"Retrieving %i Items Success", [itemsArray count]];
-                NSManagedObjectContext *moc = [CoreDataHelper getCoordinatorMOC];
-                [moc performBlock:^{
+                for (NSDictionary *itemAsDictionary in itemsArray)
+                {
+                    itemListSize--;
+                    randnum--;
+                    OdinEvent *itemToAdd = [CoreDataService insertObjectForEntity:@"OdinEvent" andContext:moc];
+                    [itemToAdd loadValuesFromDictionaryRepresentation:itemAsDictionary];
                     
-                    [CoreDataService deleteAllObjectsForEntity:@"OdinEvent" andContext:moc];
-                    
-                    for (NSDictionary *itemAsDictionary in itemsArray)
-                    {
-                        itemListSize--;
-                        randnum--;
-                        OdinEvent *itemToAdd = [CoreDataService insertObjectForEntity:@"OdinEvent" andContext:moc];
-                        [itemToAdd loadValuesFromDictionaryRepresentation:itemAsDictionary];
-                        
-                        //				dispatch_async(dispatch_get_main_queue(), ^{
-                        //                     Update the UI
-                        if (randnum < 0) {
-                            randamount = itemListTotalSize > 50 ? 50 : 1;
-                            randnum = arc4random()%itemListTotalSize%randamount;
-                            //                        //						HUD.detailsLabelText = [NSString stringWithFormat:@"Updating items %i", itemListSize];
-                            //
-                            //                        NSString* message = [NSString stringWithFormat:@"Updating items %i", itemListSize];
-                            //                        [self HUDshowDetail:message];
-                            NSString* message = [NSString stringWithFormat:@"%i items", itemListSize];
-                            [self HUDshowDetail:message];
-                        }
-                        
-                        //				});
+                    //				dispatch_async(dispatch_get_main_queue(), ^{
+                    //                     Update the UI
+                    if (randnum < 0) {
+                        randamount = itemListTotalSize > 50 ? 50 : 1;
+                        randnum = arc4random()%itemListTotalSize%randamount;
+                        //                        //						HUD.detailsLabelText = [NSString stringWithFormat:@"Updating items %i", itemListSize];
+                        //
+                        //                        NSString* message = [NSString stringWithFormat:@"Updating items %i", itemListSize];
+                        //                        [self HUDshowDetail:message];
+                        NSString* message = [NSString stringWithFormat:@"%i items", itemListSize];
+                        [self HUDshowDetail:message];
                     }
-                    //			HUD.detailsLabelText = @"Updating item done";
-                    [self HUDshowDetail:@"Updating item done"];
-                    [CoreDataService saveObjectsInContext:moc];
                     
-                    [[SettingsHandler sharedHandler] setIsItemSuccessReSync:YES];
-                }];
+                    //				});
+                }
+                //			HUD.detailsLabelText = @"Updating item done";
+                [self HUDshowDetail:@"Updating item done"];
+                [CoreDataService saveObjectsInContext:moc];
                 
-                [self startStudentList];
-                
-            }
-        } else
-        {
-            //		HUD.labelText = @"Retrieving Items Failed";
-            [self HUDshowDetail:@"Retrieving items failed"];
-            [self finishReSync];
+            });
+            [[SettingsHandler sharedHandler] setIsItemSuccessReSync:YES];
+            
+            [self startStudentList];
+            
         }
-//    });
+    } else
+    {
+        //		HUD.labelText = @"Retrieving Items Failed";
+        [self HUDshowDetail:@"Retrieving items failed"];
+        [self finishReSync];
+    }
+    //    });
 }
 -(void) startStudentList
 {
@@ -451,104 +459,112 @@ bool successReferenceDownload;
     NSLog(@"updateAllStudents start");
 #endif
     
-//    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
-        [self HUDshowMessage:@"Update Students"];
-        
-        NSDictionary* userInfo = notification.userInfo;
-        NSString* responseCode = userInfo[@"response_code"];
-        NSString* responseString = userInfo[@"response_string"];
-        NSArray* studentArray = [responseString JSONValue];
-        
-        
-        //declare a few necessary variables
-        //    NSManagedObjectContext *moc = [CoreDataHelper getMainMOC];
-        //update away!
-        //	NSArray *studentArray = [WebService	fetchStudentList];
+    //    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0ul), ^{
+    [self HUDshowMessage:@"Update Students"];
+    
+    NSString* responseCode = @"000";
+    NSString* responseString = @"[:]";
+    NSDictionary* userInfo = notification.userInfo;
+    if (userInfo != nil) {
+        responseString = userInfo[@"response_string"];
+        responseCode = userInfo[@"response_code"];
+    }
+    NSArray* studentArray = [responseString JSONValue];
+    
+    
+    //declare a few necessary variables
+    //    NSManagedObjectContext *moc = [CoreDataHelper getMainMOC];
+    //update away!
+    //	NSArray *studentArray = [WebService	fetchStudentList];
 #ifdef DEBUG
-        NSLog(@"studentArray count :%ld",(unsigned long)[studentArray count]);
+    NSLog(@"studentArray count :%ld",(unsigned long)[studentArray count]);
 #endif
-        
-        __block int studentListSize = [studentArray count];
-        
-        if (studentListSize > 0) {
-            if ([responseCode isEqualToString:@"200"]) {
+    
+    [self HUDshowMessage:@"Adding Students"];
+    __block int studentListSize = [studentArray count];
+    
+    if (studentListSize > 0) {
+        if ([responseCode isEqualToString:@"200"]) {
+            
+            successStudentDownload = true;
+            __block int studentListTotalSize = studentListSize;
+            __block int randamount = studentListTotalSize > 50 ? 50 : studentListTotalSize > 10 ? 3 : 1;
+            __block int randnum = arc4random()%studentListTotalSize%randamount;
+            
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //your code here
+                NSManagedObjectContext *moc = [CoreDataHelper getMainMOC];
                 
-                successStudentDownload = true;
-                int studentListTotalSize = studentListSize;
-                __block int randamount = studentListTotalSize > 50 ? 50 : studentListTotalSize > 10 ? 3 : 1;
-                __block int randnum = arc4random()%studentListTotalSize%randamount;
                 
-                NSManagedObjectContext *moc = [CoreDataHelper getCoordinatorMOC];
-                
-                
-                [moc performBlock:^{
-                    [CoreDataService deleteAllObjectsForEntity:@"OdinStudent" andContext:moc];
-                    for (NSDictionary *individualStudent in studentArray)
-                    {
-                        studentListSize--;
-                        randnum--;
-                        //                    [UIView animateWithDuration:0 animations:^{
-                        // Update the UI
-                        
-                        if (randnum < 0) {
-#ifdef DEBUG
-                            NSLog(@"update view");
-#endif
-                            randamount = studentListTotalSize > 50 ? 50 : 1;
-                            randnum = arc4random()%studentListTotalSize%randamount;
-                            NSString* message = [NSString stringWithFormat:@"%i students", studentListSize];
-                            [self HUDshowDetail:message];
-                        }
-                        
-                        [OdinStudent updateThisStudentWith:individualStudent andMOC:moc];
-                        
-                    }
-                    
-                    [self HUDshowDetail:@"Updating students done"];
-                    //update last Student Update date
-                    
-                    
-                    LastUpdates *lastUpdates = [LastUpdates getLastUpdatefromMOC:moc];
-                    lastUpdates.lastStudentUpdate = [NSDate localDate];
-                    
-                    //save our changes
-                    [CoreDataService saveObjectsInContext:moc];
-                    
-                    [[SettingsHandler sharedHandler] setIsStudentSuccessReSync:YES];
-                    
-                    if ((int)[OdinTransaction reloadUnSyncedArray].count > 0) {
-                        
-                        [self HUDshowDetail:@"Closing Student"];
-                        [self finishReSync];
-                    } else {
-                        [self startReferenceNumber];
-                    }
-                }];
-            } else {
-                [[AuthenticationStation sharedHandler] endAuth];
-                [self hideActivity];
-                NSString* serial = [NSString stringWithFormat:@"serial:%@",[SettingsHandler sharedHandler].serialNumber];
-                NSString* portid = [NSString stringWithFormat:@"portableid:%@",[SettingsHandler sharedHandler].uid];
-                
-                NSDictionary* status = [studentArray objectAtIndex:0];
-                
-                NSString* message = [NSString stringWithFormat:@"%@\n%@\n%@",[status valueForKey:@"response_error"],serial,portid];
-                //[ErrorAlert simpleAlertTitle:@"Failed to Connect to Server" message:message];
-                UIAlertView* alert = [[UIAlertView alloc] initWithTitle:ERR_FAIL_TO_DOWNLOAD_STUDENT message:message delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Retry",@"Email", nil];
-                dispatch_async(dispatch_get_main_queue(), ^{
+                [CoreDataService deleteAllObjectsForEntity:@"OdinStudent" andContext:moc];
+                for (NSDictionary *individualStudent in studentArray)
+                {
+                    studentListSize--;
+                    randnum--;
+                    //                    [UIView animateWithDuration:0 animations:^{
                     // Update the UI
                     
-                    [alert show];
-                });
+                    if (randnum < 0) {
+#ifdef DEBUG
+                        NSLog(@"update view");
+#endif
+                        randamount = studentListTotalSize > 50 ? 50 : 1;
+                        randnum = arc4random()%studentListTotalSize%randamount;
+                        NSString* message = [NSString stringWithFormat:@"%i students", studentListSize];
+                        [self HUDshowDetail:message];
+                    }
+                    
+                    [OdinStudent updateThisStudentWith:individualStudent andMOC:moc sync:true];
+                    
+                }
+                
+                [self HUDshowDetail:@"Updating students done"];
+                //update last Student Update date
+                
+                //save our changes
+                [CoreDataService saveObjectsInContext:moc];
+                
+                
+                LastUpdates *lastUpdates = [LastUpdates getLastUpdatefromMOC:moc];
+                lastUpdates.lastStudentUpdate = [NSDate localDate];
+                [CoreDataService saveObjectsInContext:moc];
+            });
+            
+            [[SettingsHandler sharedHandler] setIsStudentSuccessReSync:YES];
+            
+            if ((int)[OdinTransaction reloadUnSyncedArray].count > 0) {
+                
+                [self HUDshowDetail:@"Closing Student"];
+                [self finishReSync];
+            } else {
+                [self startReferenceNumber];
             }
-        } else
-        {
-            //		HUD.labelText = @"Retrieving Students Failed";
-            [self HUDshowDetail:@"Retrieving Students Failed"];
-            [self finishReSync];
+        } else {
+            [[AuthenticationStation sharedHandler] endAuth];
+            [self hideActivity];
+            NSString* serial = [NSString stringWithFormat:@"serial:%@",[SettingsHandler sharedHandler].serialNumber];
+            NSString* portid = [NSString stringWithFormat:@"portableid:%@",[SettingsHandler sharedHandler].uid];
+            
+            NSDictionary* status = [studentArray objectAtIndex:0];
+            
+            NSString* message = [NSString stringWithFormat:@"%@\n%@\n%@",[status valueForKey:@"response_error"],serial,portid];
+            //[ErrorAlert simpleAlertTitle:@"Failed to Connect to Server" message:message];
+            UIAlertView* alert = [[UIAlertView alloc] initWithTitle:ERR_FAIL_TO_DOWNLOAD_STUDENT message:message delegate:self cancelButtonTitle:@"Cancel" otherButtonTitles:@"Retry",@"Email", nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // Update the UI
+                
+                [alert show];
+            });
         }
-        
-//    });
+    } else
+    {
+        //		HUD.labelText = @"Retrieving Students Failed";
+        [self HUDshowDetail:@"Retrieving Students Failed"];
+        [self finishReSync];
+    }
+    
+    //    });
 }
 -(void) startReferenceNumber
 {
@@ -562,7 +578,7 @@ bool successReferenceDownload;
     
     [WebService fetchReferenceNumberAFNRecall];
 }
--(void) updateReferenceNumber:(NSNotification*)notification
+-(void) updateReferenceNumberNotif:(NSNotification*)notification
 {
     NSError* error;
     NSDictionary* userInfo = notification.userInfo;
@@ -602,15 +618,18 @@ bool successReferenceDownload;
 
 -(void) updateReferenceNumber
 {
-    
-    NSManagedObjectContext *moc = [CoreDataService getMainMOC];
-    //Fetch reference number from database if CoreData is empty or start from default value
-    NSArray *syncArray = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-                                                   withPredicate:nil
-                                                      andSortKey:nil
-                                                andSortAscending:NO
-                                                      andContext:moc];
-    
+    __block NSArray *syncArray = [[NSArray alloc] init];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        //your code here
+        NSManagedObjectContext *moc = [CoreDataService getMainMOC];
+        //Fetch reference number from database if CoreData is empty or start from default value
+        syncArray = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
+                                              withPredicate:nil
+                                                 andSortKey:nil
+                                           andSortAscending:NO
+                                                 andContext:moc];
+        
+    });
     //if we don't have any posted or pending transaction, we check online
     if ([syncArray count] < 1) {
         [[SettingsHandler sharedHandler] setReference:[WebService fetchReferenceNumberAFN]];
@@ -647,16 +666,16 @@ bool successReferenceDownload;
 #ifdef DEBUG
     NSLog(@"reload Table Label");
 #endif
-        self.unSyncedArray = [OdinTransaction reloadUnSyncedArray];
-        NSString* newPendingLabel = [NSString stringWithFormat:@"Pending Transaction (%@)",@(self.unSyncedArray.count)];
-        self.syncedArray = [OdinTransaction reloadSyncedArray];
-        NSString* newUploadedLabel = [NSString stringWithFormat:@"Uploaded Transaction (%@)",@(self.syncedArray.count)];
-        NSString* newResynceLabel = [NSString stringWithFormat:@"Re-Sync (I:%i | S:%i)",[OdinEvent count],[OdinStudent count]];
+    self.unSyncedArray = [OdinTransaction reloadUnSyncedArray];
+    NSString* newPendingLabel = [NSString stringWithFormat:@"Pending Transaction (%@)",@(self.unSyncedArray.count)];
+    self.syncedArray = [OdinTransaction reloadSyncedArray];
+    NSString* newUploadedLabel = [NSString stringWithFormat:@"Uploaded Transaction (%@)",@(self.syncedArray.count)];
+    NSString* newResynceLabel = [NSString stringWithFormat:@"Re-Sync (I:%i | S:%i)",[OdinEvent count],[OdinStudent count]];
     dispatch_async(dispatch_get_main_queue(), ^{
-    
-                _pendingLabel.text = newPendingLabel;
-                _uploadedLabel.text = newUploadedLabel;
-                _resyncLabel.text = newResynceLabel;
+        
+        _pendingLabel.text = newPendingLabel;
+        _uploadedLabel.text = newUploadedLabel;
+        _resyncLabel.text = newResynceLabel;
         
     });
     
@@ -840,7 +859,7 @@ bool successReferenceDownload;
     [self addNotification:@selector(switchOnlineModeButtonOff) name:@"switch offline button off"];
     [self addNotification:@selector(updateItemList:) name:NOTIFICATION_WEB_UPDATE_ITEM];
     [self addNotification:@selector(updateStudentList:) name:NOTIFICATION_WEB_UPDATE_STUDENT];
-    [self addNotification:@selector(updateReferenceNumber:) name:NOTIFICATION_WEB_UPDATE_REFERENCE];
+    [self addNotification:@selector(updateReferenceNumberNotif:) name:NOTIFICATION_WEB_UPDATE_REFERENCE];
     [self addNotification:@selector(reloadTableLabel) name:NOTIFICATION_RELOAD_VIEW];
     [self addNotification:@selector(finishUploadTransaction:) name:NOTIFICATION_WEB_UPLOAD_TRANSACTION];
     [self addNotification:@selector(HUDshowDetailNotify:) name:NOTIFICATION_UPDATE_HUD];

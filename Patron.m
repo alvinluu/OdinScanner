@@ -90,6 +90,7 @@
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     selectedStudent = [studentArray objectAtIndex:indexPath.row];
+//    [WebService fetchStudentWithID:selectedStudent.id_number];
     [self closePatron];
 }
 

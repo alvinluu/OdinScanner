@@ -693,21 +693,17 @@ NSMutableArray* tranArray;
     NSDictionary* student = [OdinStudent getStudentInfoForID:selectedIdNumber andMOC:self.moc];
     
     
-    if ([TestIf account:student
-       canPurchaseItems:cart
-             forAmounts:amounts
-                    moc:self.moc])
+    [self cancelTimer];
+    if ([TestIf account:student canPurchaseCart:cart forAmounts:amounts moc:self.moc])
     {
         [self HUDshowMessage:@"Processing.."];
-        [self cancelTimer];
         [self postTransaction];
     } else {
         NSNumber* funds = [student objectForKey:@"present"];
         if ([self hasCheckBalance]) {
-            [AuthenticationStation sharedHandler].isOnline ? [self alertChargeInsufficient] : [self alertChargeOffline];
+            [self alertChargeInsufficient];
         } else {
             [self showSuccessful:YES];
-            [self cancelTimer];
             [[SettingsHandler sharedHandler] processingSaleEnd];
         }
         
@@ -1105,14 +1101,13 @@ NSMutableArray* tranArray;
         
         //            [hud hide:NO];
         if ([self hasCheckBalance]) {
-            
             [self HUDshowMessage:@"show charge offline"];
-            [NSThread detachNewThreadSelector:@selector(alertChargeOffline) toTarget:self withObject:nil];
+            [NSThread detachNewThreadSelector:@selector(alertChargeInsufficient) toTarget:self withObject:nil];
         } else {
             [self showSuccessful:true];
         }
         
-        //        [self alertChargeOffline];
+        //        [self alertChargeInsufficient];
     }
     //    myTimer = nil;
 }
@@ -1121,21 +1116,19 @@ NSMutableArray* tranArray;
 {
     
 #ifdef DEBUG
-    NSLog(@"alertchargeOffline %@ %@",PROCESS_INSUFFICIENT_FUNDS,selectedIdNumber);
+    NSLog(@"alertChargeInsufficient %@ %@",PROCESS_INSUFFICIENT_FUNDS,selectedIdNumber);
 #endif
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-    // Insert myTask code here
-    //    [self hideActivity];
     [self cancelTimer];
-    //        OdinStudent* student = [OdinStudent getStudentObjectForID:studentIdTextBox.text andMOC:managedObjectContext];
     
     NSDictionary* student = [OdinStudent getStudentOfflineInfoForID:selectedIdNumber andMOC:managedObjectContext];
     
     //    NSNumber* funds = [student objectForKey:@"present"];
     NSString* idNumber = [student objectForKey:@"id_number"];
-    double funds = [TestIf studentOfflineBalance:idNumber];
-    NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",PROCESS_INSUFFICIENT_FUNDS,[SettingsHandler sharedHandler].getReference];
-    NSString* message = [NSString stringWithFormat:@"%@ has funds:%.2f?",idNumber, funds];
+    NSString* titleMsg = [AuthenticationStation sharedHandler].isOnline ? PROCESS_INSUFFICIENT_FUNDS : PROCESS_OFFLINE_FUNDS;
+    
+    NSDecimalNumber* funds = [student objectForKey:@"present"];
+    NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",titleMsg,[SettingsHandler sharedHandler].getReference];
+    NSString* message = [NSString stringWithFormat:@"%@ has funds:$%.2f?",idNumber, funds.doubleValue];
     if ([SettingsHandler sharedHandler].allowOverride) {
         alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
     } else {
@@ -1148,49 +1141,6 @@ NSMutableArray* tranArray;
 #endif
     dispatch_async(dispatch_get_main_queue(), ^{
         if ([SettingsHandler sharedHandler].isProcessingSale) {
-            
-            [alert show];
-        }
-        //        if ([currentReference compareReference:[SettingsHandler sharedHandler].currentReference]) {
-        //        }
-    });
-    //    });
-    //    dispatch_async(dispatch_get_main_queue(), ^{
-    //    });
-}
--(void) alertChargeOffline
-{
-    
-#ifdef DEBUG
-    NSLog(@"alertchargeOffline %@ %@",PROCESS_OFFLINE_FUNDS,selectedIdNumber);
-#endif
-    //    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, 0.001 * NSEC_PER_SEC), dispatch_get_main_queue(), ^(void){
-    // Insert myTask code here
-    [self hideActivity];
-    [self cancelTimer];
-    //        OdinStudent* student = [OdinStudent getStudentObjectForID:studentIdTextBox.text andMOC:managedObjectContext];
-    
-    NSDictionary* student = [OdinStudent getStudentOfflineInfoForID:selectedIdNumber andMOC:managedObjectContext];
-    
-    //    NSNumber* funds = [student objectForKey:@"present"];
-    NSString* idNumber = [student objectForKey:@"id_number"];
-    double funds = [TestIf studentOfflineBalance:idNumber];
-    NSString* title = [NSString stringWithFormat:@"%@ \n[%@]",PROCESS_OFFLINE_FUNDS,[SettingsHandler sharedHandler].getReference];
-    NSString* message = [NSString stringWithFormat:@"%@ has offline funds:%.2f?",idNumber, funds];
-    
-    
-#ifdef DEBUG
-    message  = [NSString stringWithFormat:@"Item CB:%i ",[self hasCheckBalance]];
-    NSLog(@"Remove HUD and show alert for student %@",selectedIdNumber);
-#endif
-    if ([SettingsHandler sharedHandler].allowOverride) {
-        alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"NO" otherButtonTitles:@"YES", nil];
-    } else {
-        alert = [[UIAlertView alloc] initWithTitle:title message:message delegate:self cancelButtonTitle:@"OK" otherButtonTitles:nil];
-    }
-    dispatch_async(dispatch_get_main_queue(), ^{
-        if ([SettingsHandler sharedHandler].isProcessingSale) {
-            
             [alert show];
         }
     });

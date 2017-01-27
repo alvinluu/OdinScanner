@@ -10,8 +10,6 @@
 #import <MessageUI/MessageUI.h>
 #import "OdinViewController.h"
 #import "Patron.h"
-#import "SbtSdkFactory.h"
-#import "ISbtSdkApiDelegate.h"
 
 @interface FirstVC : OdinViewController
 <UITextFieldDelegate, 
@@ -20,8 +18,7 @@ UIPickerViewDelegate,
 UIPickerViewDataSource,
 NSXMLParserDelegate,
 MBProgressHUDDelegate,
-PatronDelegate,
-ISbtSdkApiDelegate
+PatronDelegate
 
 > {
     

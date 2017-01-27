@@ -82,7 +82,7 @@ NSManagedObjectContext *moc;
             }
             
 #ifdef DEBUG
-            		NSLog(@"update %@ %@ %@ %@",studentToUpdate.id_number,studentToUpdate.student,studentToUpdate.last_name,studentToUpdate.last_update);
+            		//NSLog(@"update autosync %@ %@ %@ %@",studentToUpdate.id_number,studentToUpdate.student,studentToUpdate.last_name,studentToUpdate.last_update);
 #endif
             
             //check "isCancelled" on either end of the fetch from webservice, as that's what takes the time

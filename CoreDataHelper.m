@@ -32,7 +32,8 @@
     
 	// Execute the fetch request
 	NSError *error = nil;
-	NSMutableArray *mutableFetchResults = [[managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
+    NSMutableArray *mutableFetchResults = [[managedObjectContext executeFetchRequest:request error:&error] mutableCopy];
+//    NSMutableArray *mutableFetchResults = [managedObjectContext executeFetchRequest:request error:&error];
 
 	// If the returned array was nil then there was an error
 	if ([mutableFetchResults count] == 0)

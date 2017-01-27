@@ -15,12 +15,28 @@
 #import "CartItem.h"
 
 @implementation TestIf
-
++(double) totalPendingTransactionAmountWithID:(NSString*)idNumber {
+    double pendingBalance = 0.0;
+    NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
+                                                                       withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = false",idNumber]
+                                                                          andSortKey:nil
+                                                                    andSortAscending:NO
+                                                                          andContext:[CoreDataService getMainMOC]];
+    
+    
+    for (OdinTransaction *transaction in pendingTransactionsForStudent)
+    {
+        pendingBalance += transaction.amount.doubleValue;
+    }
+    
+    
+    return pendingBalance;
+}
 /*
  * Check student has enough funds after deducting pending transaction
  * It doesn't retrieve online fund
  */
-+(BOOL) account:(NSDictionary *)student canPurchaseItem:(OdinEvent *)theItem forAmount:(NSNumber *)amount
++(BOOL) account:(NSDictionary *)student canPurchaseItem:(OdinEvent *)theItem forAmount:(NSNumber *)amount 
 {
 	if (!student) return FALSE;
 	
@@ -32,76 +48,17 @@
 	NSLog(@"testif id_number:%@ name:%@ %@",idNumber,[student objectForKey:@"student"], [student objectForKey:@"last_name"]);
 #endif
 	
-	//fetch student info, return no if that fails
-	
 	//Checks balance and restriction
 	if ([theItem.chk_balance boolValue] == TRUE)
 	{
-		//checks restrictions, currently unused
-		/*
-		 //loops through each time_x and corresponding area_x by defining selectors at runtime
-		 // based on the attributes of the OdinStudent class
-		 int itemLocation = [theItem.location intValue];
-		 NSString *timeKey = [NSString stringWithFormat:@"time_%i",itemLocation];
-		 NSString *areaKey = [NSString stringWithFormat:@"area_%i",itemLocation];
-		 NSString *locationRestrictionTime;
-		 NSNumber *locationRestrictionAmount;
-		 
-		 
-		 if (studentSQLData)
-		 {
-		 locationRestrictionTime = [studentSQLData objectForKey:timeKey];
-		 locationRestrictionAmount = [studentSQLData objectForKey:areaKey];
-		 studentBalance = [studentSQLData objectForKey:@"present"];
-		 }
-		 else if (studentCoreData)
-		 {
-		 if ([studentCoreData respondsToSelector:NSSelectorFromString(timeKey)])
-		 locationRestrictionTime =	[studentCoreData performSelector:NSSelectorFromString(timeKey)];
-		 if ([studentCoreData respondsToSelector:NSSelectorFromString(areaKey)])
-		 locationRestrictionAmount = [studentCoreData performSelector:NSSelectorFromString(areaKey)];
-		 
-		 studentBalance = [studentCoreData present];
-		 }
-		 
-		 //Throws alert and returns no if student has an active $0 restriction for any time period
-		 if ((itemLocation >= 2)
-		 && ([locationRestrictionAmount intValue] == 0)
-		 && ([locationRestrictionTime isEqualToString:@"N"] == FALSE))
-		 {
-		 [ErrorAlert studentCantPurchaseFromLocation:itemLocation];
-		 return NO;
-		 }
-		 */
-		
 		//removes amount of any pending transactions from available balance
 		NSNumber *studentBalance = [student objectForKey:@"present"];
 #ifdef DEBUG
-		NSLog(@"student present %.2f amount %.2f",[studentBalance doubleValue],[amount doubleValue]);
+		NSLog(@"student present %.2f amount %.2f",studentBalance.doubleValue,amount.doubleValue);
 #endif
-		double pendingBalance = 0.0;
-//		NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-//																		  withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = 0",idNumber]
-//																			 andSortKey:nil
-//																	   andSortAscending:NO
-//                                                                              andContext:[CoreDataService getMainMOC]];
-        NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-                                                                           withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@",idNumber]
-                                                                              andSortKey:nil
-                                                                        andSortAscending:NO
-                                                                              andContext:[CoreDataService getMainMOC]];
-		
-		if ([pendingTransactionsForStudent count] > 0)
-		{
-			for (OdinTransaction *transaction in pendingTransactionsForStudent)
-			{
-				pendingBalance += [transaction.amount doubleValue];
-			}
-			
-		}
 		
 		//subtract pending balance from student's current balance
-		studentBalance = [NSNumber numberWithDouble:([studentBalance doubleValue] - pendingBalance)];
+        studentBalance = [NSNumber numberWithDouble:(studentBalance.doubleValue - [self totalPendingTransactionAmountWithID:idNumber])];
 #ifdef DEBUG
 		NSLog(@"student %.2f amount %.2f",[studentBalance doubleValue],[amount doubleValue]);
 #endif
@@ -111,10 +68,9 @@
 	return YES;
 }
 
-+(BOOL) account:(NSDictionary *)student canPurchaseItems:(NSArray *)items forAmounts:(NSArray *)amounts moc:(NSManagedObjectContext*)moc
++(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSArray *)amounts moc:(NSManagedObjectContext*)moc
 {
-	if (!student)
-		return FALSE;
+	if (!student) return FALSE;
 	
 #ifdef DEBUG
 	NSLog(@"CanPurchaseItems %@",items);
@@ -122,30 +78,13 @@
     
 	NSString *idNumber = [student objectForKey:@"id_number"];
 	
-	//fetch student info, return no if that fails
-	
-	//Checks balance and restriction
+    
+    //Checks balance and restriction
     NSNumber *studentBalance = [student objectForKey:@"present"];
     double pendingBalance = 0.0;
     double sumOfItemsToCheck = 0.0;
-    NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-                                                                      withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = 0",idNumber]
-                                                                         andSortKey:nil
-                                                                   andSortAscending:NO
-                                                                         andContext:moc];
-#ifdef DEBUG
-    NSLog(@"calculate pending cart total");
-#endif
-    if ([pendingTransactionsForStudent count] > 0)
-    {
-        for (OdinTransaction *transaction in pendingTransactionsForStudent)
-        {
-            pendingBalance += [transaction.amount doubleValue];
-        }
-    }
-    
     //subtract pending balance from student's current balance
-    studentBalance = [NSNumber numberWithDouble:([studentBalance doubleValue] - pendingBalance)];
+    studentBalance = [NSNumber numberWithDouble:(studentBalance.doubleValue - [self totalPendingTransactionAmountWithID:idNumber])];
 #ifdef DEBUG
     NSLog(@"student new balance %.2f",studentBalance.floatValue);
 #endif
@@ -163,38 +102,20 @@
     }
     return YES;
 }
-+(double)studentOfflineBalance:(NSString*)idNumber
+/*
+ * removes amount of any pending transactions from available balance
+ */
++(double)studentOfflineBalanceWithID:(NSString*)idNumber
 {
-    OdinStudent* student = [OdinStudent getStudentByIDnumber:idNumber];
     
-    //removes amount of any pending transactions from available balance
+    OdinStudent* student = [OdinStudent getStudentByIDnumber:idNumber];
     double studentBalance = student.present.doubleValue;
 #ifdef DEBUG
     NSLog(@"student has balance %.2f",studentBalance);
 #endif
-    double pendingBalance = 0.0;
-    //		NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-    //																		  withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = 0",idNumber]
-    //																			 andSortKey:nil
-    //																	   andSortAscending:NO
-    //                                                                              andContext:[CoreDataService getMainMOC]];
-    NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-                                                                       withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@",idNumber]
-                                                                          andSortKey:nil
-                                                                    andSortAscending:NO
-                                                                          andContext:[CoreDataService getMainMOC]];
-    
-    if ([pendingTransactionsForStudent count] > 0)
-    {
-        for (OdinTransaction *transaction in pendingTransactionsForStudent)
-        {
-            pendingBalance += [transaction.amount doubleValue];
-        }
-        
-    }
-    
+
     //subtract pending balance from student's current balance
-    studentBalance = studentBalance - pendingBalance;
+    studentBalance = studentBalance - [self totalPendingTransactionAmountWithID:idNumber];
 #ifdef DEBUG
     NSLog(@"student new balance %.2f",studentBalance);
 #endif
@@ -216,7 +137,7 @@
 	__block int responseCode = 0;
 	__block BOOL weCanReachServer = NO;
 	
-	NSDictionary *requestParams = [WebService getDefaultParameters];
+	NSDictionary *requestParams = [WebService getDefaultParametersWithSync:true];
 	
 	
 	AFHTTPRequestOperationManager* manager = [WebService createAFHTTPRequestWithPortableURL];

@@ -743,6 +743,7 @@ NSMutableArray* tranArray;
         //TODO: should this be used?
         //NSDecimalNumber *tax = [item tax];
         
+        NSDecimalNumber *totalAmountNoTax = [amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithNumber:qty]];
         NSDecimalNumber *totalAmount = [OdinTransaction getTotalAmountFromQtyEntered:qty andAmountEntered:amount forItem:item];
         //check if the transaction is legal, and if the account has sufficient funds
         //processTransaciton is always called on a background thread since main thread is animating the activity indicator
@@ -759,7 +760,7 @@ NSMutableArray* tranArray;
         transaction.timeStamp = [NSDate localDate];
         transaction.sync = [NSNumber numberWithBool:FALSE];
         //total amount = amount + tax, so tax = totalAmount - amount
-        transaction.tax_amount = [totalAmount decimalNumberBySubtracting:amount];
+        transaction.tax_amount = [totalAmount decimalNumberBySubtracting:totalAmountNoTax];
         transaction.reference = reference;
         transaction.location = item.location;
         transaction.item = item.item;
@@ -829,6 +830,7 @@ NSMutableArray* tranArray;
             NSNumber *qty = [NSNumber numberWithInt: [itemInCart count]];
             NSDecimalNumber *amount = [item amount];
             
+            NSDecimalNumber *totalAmountNoTax = [amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithNumber:qty]];
             //TODO: should this be used?
             //NSDecimalNumber *tax = [item tax];
             
@@ -850,7 +852,7 @@ NSMutableArray* tranArray;
             transaction.timeStamp = [NSDate localDate];
             transaction.sync = [NSNumber numberWithBool:FALSE];
             //total amount = amount + tax, so tax = totalAmount - amount
-            transaction.tax_amount = [totalAmount decimalNumberBySubtracting:amount];
+            transaction.tax_amount = [totalAmount decimalNumberBySubtracting:totalAmountNoTax];
             transaction.reference = reference;
             transaction.location = item.location;
             transaction.item = item.item;

@@ -281,6 +281,7 @@ UIAlertView* alert;
     NSNumberFormatter *numberFormatter = [[NSNumberFormatter alloc] init];
     NSNumber *qty = [numberFormatter numberFromString:[qtyTextBox text]];
     NSDecimalNumber *amount = [NSDecimalNumber decimalNumberWithString:[amtTextBox text]];
+    NSDecimalNumber *totalAmountNoTax = [amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithNumber:qty]];
     
     //NSDecimalNumber *tax = selectedItem.tax;
     
@@ -298,7 +299,7 @@ UIAlertView* alert;
         transaction.timeStamp = [NSDate localDate];
         transaction.sync = [NSNumber numberWithBool:FALSE];
         //total amount = amount + tax, so tax = totalAmount - amount
-        transaction.tax_amount = [totalAmount decimalNumberBySubtracting:amount];
+        transaction.tax_amount = [totalAmount decimalNumberBySubtracting:totalAmountNoTax];
         transaction.reference = reference;
         transaction.location = selectedItem.location;
         transaction.item = selectedItem.item;
@@ -343,6 +344,7 @@ UIAlertView* alert;
     NSString *reference = [[SettingsHandler sharedHandler] getReference];
     [[SettingsHandler sharedHandler] incrementReference];
     [SettingsHandler sharedHandler].processingRef = reference;
+    NSDecimalNumber *totalAmountNoTax = [amount decimalNumberByMultiplyingBy:[NSDecimalNumber decimalNumberWithNumber:qty]];
     NSDecimalNumber *totalAmount = [OdinTransaction getTotalAmountFromQtyEntered:qty andAmountEntered:amount forItem:selectedItem];
     
     //Create a new transaction data
@@ -358,7 +360,7 @@ UIAlertView* alert;
     transaction.timeStamp = [NSDate localDate];
     transaction.sync = [NSNumber numberWithBool:FALSE];
     //total amount = amount + tax, so tax = totalAmount - amount
-    transaction.tax_amount = [totalAmount decimalNumberBySubtracting:amount];
+    transaction.tax_amount = [totalAmount decimalNumberBySubtracting:totalAmountNoTax];
     transaction.reference = reference;
     transaction.location = selectedItem.location;
     transaction.item = selectedItem.item;
@@ -368,7 +370,7 @@ UIAlertView* alert;
     transaction.operator = [[SettingsHandler sharedHandler] uid];
     transaction.payment = @"G";
     transaction.process_on_sync = selectedItem.process_on_sync;
-    transaction.tax_amount = [NSDecimalNumber decimalNumberWithString:@"0.00"];
+    //transaction.tax_amount = [NSDecimalNumber decimalNumberWithString:@"0.00"];
     
     //Credit card
     transaction.cc_digit = [ccProcess getCardLast4Digits];
@@ -507,15 +509,16 @@ UIAlertView* alert;
                                                    andContext:moc];
     
     //    dispatch_async(dispatch_get_main_queue(), ^{
+    [itemPicker reloadAllComponents];
     if (selectedItem.plu)
     {
-        qtyTextBox.text = [NSString stringWithFormat:@"%@",selectedItem.qty];
+//        qtyTextBox.text = [NSString stringWithFormat:@"%@",selectedItem.qty];
         //            amtTextBox.text = [NSString stringWithFormat:@"%@",selectedItem.amount];
         
         NSDecimalNumber* totalAmountWithTax = [OdinTransaction getTotalAmountFromQtyEntered:selectedItem.qty andAmountEntered:selectedItem.amount forItem:selectedItem];
-        amtTextBox.text = [NSString stringWithFormat:@"%.2f",totalAmountWithTax.floatValue];
+//        amtTextBox.text = [NSString stringWithFormat:@"%.2f",totalAmountWithTax.floatValue];
     }
-    [itemPicker reloadAllComponents];
+    
     //    });
     
 #ifdef DEBUG

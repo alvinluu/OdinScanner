@@ -233,6 +233,15 @@
 	if ([possibleItems count] >= 1)
 	{
 		OdinEvent *currentItemType = [possibleItems objectAtIndex:0];
+        /* compare item name when there are item share PLU */
+        if (possibleItems.count > 1) {
+            for (OdinEvent* i in possibleItems) {
+                if ([i.item isEqualToString:transaction.item]) {
+                    currentItemType = i;
+                    break;
+                }
+            }
+        }
 		//can't be deleted if it's already been uploaded
 		if ([transaction.sync boolValue] == TRUE)
 		{

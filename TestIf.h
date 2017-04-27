@@ -19,7 +19,7 @@
 +(BOOL) account:(NSDictionary *)student canPurchaseItem:(OdinEvent *)theItem forAmount:(NSNumber *)amount;
 
 //Checks if the ID that is scanned can purchase an entire cart of items (including restrictions)
-+(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSArray *)amounts  moc:(NSManagedObjectContext*)moc;
++(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSNumber *)amounts;
 
 +(double)studentOfflineBalanceWithID:(NSString*)idNumber;
 //Checks if there is an existing connection to the "School" server

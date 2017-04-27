@@ -16,7 +16,7 @@
 @interface RegisterVC ()
 
 @property (nonatomic, strong) NSMutableArray *cart;
-@property (nonatomic, strong) NSMutableArray *amounts;
+@property (nonatomic) double totalCartAmount;
 @property (nonatomic, strong) IBOutlet UITableView *tableView;
 @property (nonatomic, strong) IBOutlet UIView *popover;
 @property (nonatomic, strong) IBOutlet UIView *darken;
@@ -49,7 +49,7 @@
 
 @implementation RegisterVC
 
-@synthesize cart, amounts;
+@synthesize cart, totalCartAmount;
 @synthesize tableView;
 @synthesize popover, darken;
 @synthesize subtotalLabel;
@@ -93,10 +93,11 @@ NSMutableArray* tranArray;
         [UIView commitAnimations];
         
         //Create array of item costs, used to test if student has enough balance
-        self.amounts = [NSMutableArray array];
-        float subtotal = 0.0;
-        float tax = 0.0;
-        float total = 0.0;
+//        self.amounts = [NSMutableArray array];
+        totalCartAmount = 0.0;
+        double subtotal = 0.0;
+        double tax = 0.0;
+        double total = 0.0;
         IDTextField.enabled = true;
         IDTextField.backgroundColor = [UIColor whiteColor];
         nameLabel.text = @"";
@@ -104,14 +105,14 @@ NSMutableArray* tranArray;
         
         for(int k = 0; k < [self.cart count]; k++) {
             CartItem *itemInCart = [self.cart objectAtIndex:k];
-            float amount = itemInCart.item.amount.floatValue;
-            float qty = [itemInCart count];
-            float itemTotal = amount * qty;
+            double amount = itemInCart.item.amount.floatValue;
+            double qty = [itemInCart count];
+            double itemTotal = amount * qty;
             subtotal += itemTotal;
             //There's already a method to calculate total with quantity and tax
             NSDecimalNumber *itemTotalWithTax = [OdinTransaction getTotalAmountFromQtyEntered:[NSNumber numberWithInt:itemInCart.count] andAmountEntered:itemInCart.item.amount forItem:itemInCart.item];
             total += itemTotalWithTax.floatValue;
-            [self.amounts addObject:itemTotalWithTax];
+//            [self.amounts addObject:itemTotalWithTax];
             if (!itemInCart.item.allow_manual_id.boolValue) {
                 IDTextField.enabled = false;
                 IDTextField.backgroundColor = [UIColor grayColor];
@@ -127,6 +128,7 @@ NSMutableArray* tranArray;
         subtotalLabel.text = [NSString stringWithFormat:@"$%.2f", subtotal];
         taxLabel.text = [NSString stringWithFormat:@"$%.2f", tax];
         totalLabel.text = [NSString stringWithFormat:@"$%.2f", total];
+        totalCartAmount = total;
         /*[[SettingsHandler sharedHandler] setSubtotal:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.2f",subtotal]]];
          [[SettingsHandler sharedHandler] setTax:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.2f",tax]]];
          [[SettingsHandler sharedHandler] setTotal:[NSDecimalNumber decimalNumberWithString:[NSString stringWithFormat:@"%.2f",total]]];
@@ -150,7 +152,7 @@ NSMutableArray* tranArray;
     dispatch_async(dispatch_get_main_queue(), ^{
         self.cart = nil;
         self.cart = [NSMutableArray array];
-        self.amounts = nil;
+        self.totalCartAmount = 0.0;
         selectedIdNumber = nil;
         processButton.enabled = NO;
         [tableView reloadData];
@@ -694,7 +696,7 @@ NSMutableArray* tranArray;
     
     
     [self cancelTimer];
-    if ([TestIf account:student canPurchaseCart:cart forAmounts:amounts moc:self.moc])
+    if ([TestIf account:student canPurchaseCart:cart forAmounts:[NSNumber numberWithDouble:totalCartAmount]])
     {
         [self HUDshowMessage:@"Processing.."];
         [self postTransaction];

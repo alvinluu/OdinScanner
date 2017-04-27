@@ -60,7 +60,7 @@
 }
 
 
-+(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSArray *)amounts moc:(NSManagedObjectContext*)moc
++(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSNumber* )amount
 {
 	if (!student) return FALSE;
 	
@@ -70,7 +70,7 @@
     if ([items hasCheckBalanceInCart]) {
         
         TestIf* testif = [[TestIf alloc] init];
-        return [testif account:student canAffordAmounts:[items totalAmountInCart]];
+        return [testif account:student canAffordAmounts:amount];
         
     }
     return true;

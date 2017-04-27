@@ -28,6 +28,7 @@
 @property (nonatomic, retain) NSString * s_email;
 @property (nonatomic, retain) NSDate * last_update;
 @property (nonatomic, retain) NSDecimalNumber * present;
+@property (nonatomic, retain) NSDecimalNumber * threshold;
 @property (nonatomic, retain) NSString * student;
 @property (nonatomic, retain) NSString * studentuid;
 @property (nonatomic, retain) NSString * time_1;

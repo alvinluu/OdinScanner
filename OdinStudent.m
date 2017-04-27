@@ -24,6 +24,7 @@
 @dynamic id_number;
 @dynamic last_name;
 @dynamic last_update;
+@dynamic threshold;
 @dynamic p_email;
 @dynamic s_email;
 @dynamic present;

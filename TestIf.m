@@ -13,15 +13,17 @@
 #import "OdinStudent.h"
 //#import "AuthenticationStation.h"
 #import "CartItem.h"
+#import "NSArray+Ext.h"
 
 @implementation TestIf
-+(double) totalPendingTransactionAmountWithID:(NSString*)idNumber {
+-(double) totalPendingTransactionAmountWithID:(NSString*)idNumber {
     double pendingBalance = 0.0;
-    NSArray *pendingTransactionsForStudent = [CoreDataService searchObjectsForEntity:@"OdinTransaction"
-                                                                       withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = false",idNumber]
-                                                                          andSortKey:nil
-                                                                    andSortAscending:NO
-                                                                          andContext:[CoreDataService getMainMOC]];
+    NSArray *pendingTransactionsForStudent = [CoreDataService
+                                              searchObjectsForEntity:@"OdinTransaction"
+                                              withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@ AND sync = false",idNumber]
+                                              andSortKey:nil
+                                              andSortAscending:NO
+                                              andContext:[CoreDataService getMainMOC]];
     
     
     for (OdinTransaction *transaction in pendingTransactionsForStudent)
@@ -50,58 +52,57 @@
 	
 	//Checks balance and restriction
 	if ([theItem.chk_balance boolValue] == TRUE)
-	{
-		//removes amount of any pending transactions from available balance
-		NSNumber *studentBalance = [student objectForKey:@"present"];
-#ifdef DEBUG
-		NSLog(@"student present %.2f amount %.2f",studentBalance.doubleValue,amount.doubleValue);
-#endif
-		
-		//subtract pending balance from student's current balance
-        studentBalance = [NSNumber numberWithDouble:(studentBalance.doubleValue - [self totalPendingTransactionAmountWithID:idNumber])];
-#ifdef DEBUG
-		NSLog(@"student %.2f amount %.2f",[studentBalance doubleValue],[amount doubleValue]);
-#endif
-        return ([studentBalance doubleValue] >= [amount doubleValue]);
-		
+    {
+        TestIf* testif = [[TestIf alloc] init];
+        return [testif account:student canAffordAmounts:amount];
 	}
 	return YES;
 }
+
 
 +(BOOL) account:(NSDictionary *)student canPurchaseCart:(NSArray *)items forAmounts:(NSArray *)amounts moc:(NSManagedObjectContext*)moc
 {
 	if (!student) return FALSE;
 	
 #ifdef DEBUG
-	NSLog(@"CanPurchaseItems %@",items);
+	NSLog(@"CanPurchaseCart %@",items);
 #endif
-    
-	NSString *idNumber = [student objectForKey:@"id_number"];
-	
-    
-    //Checks balance and restriction
-    NSNumber *studentBalance = [student objectForKey:@"present"];
-    double pendingBalance = 0.0;
-    double sumOfItemsToCheck = 0.0;
-    //subtract pending balance from student's current balance
-    studentBalance = [NSNumber numberWithDouble:(studentBalance.doubleValue - [self totalPendingTransactionAmountWithID:idNumber])];
-#ifdef DEBUG
-    NSLog(@"student new balance %.2f",studentBalance.floatValue);
-#endif
-    for(int i = 0; i < [items count]; i++) {
-        CartItem *itemInCart = [items objectAtIndex:i];
-        OdinEvent *theItem = [itemInCart item];
-        if ([theItem.chk_balance boolValue] == TRUE)
-        {
-            sumOfItemsToCheck += [[amounts objectAtIndex:i] doubleValue];
-            if([studentBalance doubleValue] < sumOfItemsToCheck) {
-                //[ErrorAlert studentCantAfford:idNumber];
-                return NO;
-            }
-        }
+    if ([items hasCheckBalanceInCart]) {
+        
+        TestIf* testif = [[TestIf alloc] init];
+        return [testif account:student canAffordAmounts:[items totalAmountInCart]];
+        
     }
-    return YES;
+    return true;
 }
+
+-(BOOL) account:(NSDictionary *)student canAffordAmounts:(NSNumber *)amount
+{
+    
+    //removes amount of any pending transactions from available balance
+    NSString *idNumber = [student objectForKey:@"id_number"];
+    NSNumber *studentBalanceNumber = [student objectForKey:@"present"];
+    NSNumber *thresholdNumber = [student objectForKey:@"threshold"];
+    double charge = amount.doubleValue;
+    double studentBalance = studentBalanceNumber.doubleValue;
+    double threshold = thresholdNumber.doubleValue;
+#ifdef DEBUG
+    NSLog(@"student present %.2f amount %.2f",studentBalance,charge);
+#endif
+    TestIf* testif = [[TestIf alloc] init];
+    //subtract pending balance from student's current balance
+    studentBalance -= [self totalPendingTransactionAmountWithID:idNumber];
+    
+    //add threshold
+    studentBalance += (-1 * threshold);
+#ifdef DEBUG
+    NSLog(@"student %.2f amount %.2f",studentBalance,charge );
+#endif
+    return (studentBalance >= charge);
+    
+    return false;
+}
+
 /*
  * removes amount of any pending transactions from available balance
  */
@@ -115,7 +116,8 @@
 #endif
 
     //subtract pending balance from student's current balance
-    studentBalance = studentBalance - [self totalPendingTransactionAmountWithID:idNumber];
+    TestIf* testif = [[TestIf alloc] init];
+    studentBalance -=  [testif totalPendingTransactionAmountWithID:idNumber];
 #ifdef DEBUG
     NSLog(@"student new balance %.2f",studentBalance);
 #endif

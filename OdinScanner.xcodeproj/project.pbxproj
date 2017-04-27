@@ -11,6 +11,7 @@
 		5220AD361C7E567E009706B9 /* NSString+extra.m in Sources */ = {isa = PBXBuildFile; fileRef = 5220AD351C7E567E009706B9 /* NSString+extra.m */; };
 		5222CF101C57F5DA00E03C09 /* Patron.m in Sources */ = {isa = PBXBuildFile; fileRef = 5222CF0E1C57F5DA00E03C09 /* Patron.m */; };
 		5222CF111C57F5DA00E03C09 /* Patron.xib in Resources */ = {isa = PBXBuildFile; fileRef = 5222CF0F1C57F5DA00E03C09 /* Patron.xib */; };
+		522385481EB25928001CBE48 /* NSArray+Ext.m in Sources */ = {isa = PBXBuildFile; fileRef = 522385471EB25928001CBE48 /* NSArray+Ext.m */; };
 		5244EA381C2C607500096947 /* OdinOperationQueue.m in Sources */ = {isa = PBXBuildFile; fileRef = 5244EA371C2C607500096947 /* OdinOperationQueue.m */; };
 		5254D4131BF10E2E00EF49D0 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C8A4466714C06C1C0014616B /* ExternalAccessory.framework */; };
 		526FAEBE1C5C57AC00D1393B /* TransactionUpdateObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = 526FAEBD1C5C57AC00D1393B /* TransactionUpdateObserver.m */; };
@@ -172,6 +173,9 @@
 		5222CF0D1C57F5DA00E03C09 /* Patron.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Patron.h; sourceTree = "<group>"; };
 		5222CF0E1C57F5DA00E03C09 /* Patron.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Patron.m; sourceTree = "<group>"; };
 		5222CF0F1C57F5DA00E03C09 /* Patron.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = Patron.xib; sourceTree = "<group>"; };
+		522385451EB25413001CBE48 /* OdinScanner 17.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "OdinScanner 17.xcdatamodel"; sourceTree = "<group>"; };
+		522385461EB25928001CBE48 /* NSArray+Ext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = "NSArray+Ext.h"; path = "Helper Class/NSArray+Ext.h"; sourceTree = "<group>"; };
+		522385471EB25928001CBE48 /* NSArray+Ext.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "NSArray+Ext.m"; path = "Helper Class/NSArray+Ext.m"; sourceTree = "<group>"; };
 		5244EA361C2C607500096947 /* OdinOperationQueue.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OdinOperationQueue.h; sourceTree = "<group>"; };
 		5244EA371C2C607500096947 /* OdinOperationQueue.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OdinOperationQueue.m; sourceTree = "<group>"; };
 		524E90611BC2F8FE0075AD71 /* OdinScanner 16.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "OdinScanner 16.xcdatamodel"; sourceTree = "<group>"; };
@@ -838,6 +842,8 @@
 				C891866519894AFE006FE2C7 /* RNCryptor */,
 				5244EA361C2C607500096947 /* OdinOperationQueue.h */,
 				5244EA371C2C607500096947 /* OdinOperationQueue.m */,
+				522385461EB25928001CBE48 /* NSArray+Ext.h */,
+				522385471EB25928001CBE48 /* NSArray+Ext.m */,
 			);
 			name = "Helper Classes";
 			sourceTree = "<group>";
@@ -982,6 +988,7 @@
 				TargetAttributes = {
 					C8A445FD14C06A850014616B = {
 						DevelopmentTeam = Z2SZFT7WNM;
+						ProvisioningStyle = Manual;
 						SystemCapabilities = {
 							com.apple.Keychain = {
 								enabled = 1;
@@ -1117,6 +1124,7 @@
 				C857AA6C156BDACE00B6C6E0 /* ReviewUploadsVC.m in Sources */,
 				5295A3AF1BEAC15F0073EAB3 /* UICKeyChainStore.m in Sources */,
 				C84E8D3A15C17D02001D04FD /* NSString+hackXML.m in Sources */,
+				522385481EB25928001CBE48 /* NSArray+Ext.m in Sources */,
 				C8115CFB1AFD417D0013F8B9 /* inpay.cpp in Sources */,
 				C876308B1610E2A0003C512E /* StudentUpdate.m in Sources */,
 				C8D137501612247500DEC698 /* OdinViewController.m in Sources */,
@@ -1344,7 +1352,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer: Alvin Luu (3QQY697ZAJ)";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer: Alvin Luu (3QQY697ZAJ)";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1372,9 +1380,9 @@
 				OTHER_CFLAGS = "";
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
+				PROVISIONING_PROFILE = "e7f9493f-1184-4dd3-8830-ceb6f2485ab2";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1396,7 +1404,7 @@
 				CLANG_WARN_SUSPICIOUS_IMPLICIT_CONVERSION = NO;
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1421,9 +1429,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
+				PROVISIONING_PROFILE = "e7f9493f-1184-4dd3-8830-ceb6f2485ab2";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_AFTER_BUILD = NO;
@@ -1498,7 +1506,7 @@
 				CODE_SIGN_ENTITLEMENTS = OdinScanner/OdinScanner.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Distribution";
 				"CODE_SIGN_IDENTITY[sdk=*]" = "iPhone Distribution";
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Distribution";
 				DEVELOPMENT_TEAM = Z2SZFT7WNM;
 				ENABLE_BITCODE = NO;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -1523,9 +1531,9 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = Odin.OdinScanner.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE = "6cb34ad3-3978-4d78-9846-f2ee9e9a3911";
+				PROVISIONING_PROFILE = "e7f9493f-1184-4dd3-8830-ceb6f2485ab2";
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
-				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Dev";
+				PROVISIONING_PROFILE_SPECIFIER = "Odin Scanner Distribution";
 				SWIFT_OBJC_BRIDGING_HEADER = "OdinScanner/OdinScanner-Bridging-Header.h";
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_AFTER_BUILD = NO;
@@ -1669,6 +1677,7 @@
 		C8DA3FF414D9C6EE00095305 /* OdinScanner.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				522385451EB25413001CBE48 /* OdinScanner 17.xcdatamodel */,
 				524E90611BC2F8FE0075AD71 /* OdinScanner 16.xcdatamodel */,
 				C8F47BAB1B500ECD00825AB9 /* OdinScanner 15.xcdatamodel */,
 				C86C49771A44C5FB00463359 /* OdinScanner 14.xcdatamodel */,
@@ -1688,7 +1697,7 @@
 				C8763087160CCA79003C512E /* OdinScanner2.xcdatamodel */,
 				C8DA3FF514D9C6EE00095305 /* OdinScanner.xcdatamodel */,
 			);
-			currentVersion = 524E90611BC2F8FE0075AD71 /* OdinScanner 16.xcdatamodel */;
+			currentVersion = 522385451EB25413001CBE48 /* OdinScanner 17.xcdatamodel */;
 			path = OdinScanner.xcdatamodeld;
 			sourceTree = SOURCE_ROOT;
 			versionGroupType = wrapper.xcdatamodel;

@@ -13,7 +13,8 @@
 
 //Collection of functions designed to outsource testing of certain conditions for the program
 @interface TestIf : NSObject
-+(double) totalPendingTransactionAmountWithID:(NSString*)idNumber;
+-(double) totalPendingTransactionAmountWithID:(NSString*)idNumber;
+-(BOOL) account:(NSDictionary *)student canAffordAmounts:(NSNumber *)amount;
 //Checks if the ID that is scanned can purchase an item (including restrictions)
 +(BOOL) account:(NSDictionary *)student canPurchaseItem:(OdinEvent *)theItem forAmount:(NSNumber *)amount;
 

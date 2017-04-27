@@ -143,11 +143,12 @@
         NSLog(@"no student found with id %@. use offline student data",idNumber);
 #endif
         
-        NSArray *arrayOfStudents = [CoreDataService searchObjectsForEntity:@"OdinStudent"
-                                                             withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@",idNumber]
-                                                                andSortKey:nil
-                                                          andSortAscending:NO
-                                                                andContext:managedObjectContext];
+        NSArray *arrayOfStudents = [CoreDataService
+                                    searchObjectsForEntity:@"OdinStudent"
+                                    withPredicate:[NSPredicate predicateWithFormat:@"id_number = %@",idNumber]
+                                    andSortKey:nil
+                                    andSortAscending:NO
+                                    andContext:managedObjectContext];
         //assert that there should be 0 or 1 values returned
 #ifdef DEBUG
         NSAssert(([arrayOfStudents count] <= 1), @"multiple accounts with same ID");
@@ -262,6 +263,11 @@
             NSDecimalNumber* present = [[NSDecimalNumber alloc] initWithDouble: [TestIf studentOfflineBalanceWithID:idNumber]];
             //[studentAsDictionary setObject:studentCoreData.present forKey:@"present"];
             [studentAsDictionary setObject:present forKey:@"present"];
+        }
+        
+        if(studentCoreData.threshold != nil) {
+            //[studentAsDictionary setObject:studentCoreData.present forKey:@"present"];
+            [studentAsDictionary setObject:studentCoreData.threshold forKey:@"threshold"];
         }
         
         if(studentCoreData.area_1 != nil)
